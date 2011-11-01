@@ -77,6 +77,477 @@
         %p November 9, 2011
 
 
+    .slide
+      %h1 Hello, Trema!
+      %pre.brush:.ruby
+        :preserve
+          class HelloController < Controller
+            def start
+              puts "Hello, Trema!"
+            end
+          end
+
+
+    .slide
+      %h1 Ruby in 3 minutes
+      %p TODO: irb でインタラクティブに
+
+
+    .slide
+      %h1 Switch Monitor
+      %pre.brush:.ruby
+        :preserve
+          class SwitchMonitor < Controller
+            periodic_timer_event :show_switches, 10
+
+            def start
+              @switches = []
+            end
+
+            def switch_ready datapath_id
+              @switches << datapath_id.to_hex
+              puts "Switch \#{ datapath_id.to_hex } is UP"
+            end
+
+            def switch_disconnected datapath_id
+              @switches -= [ datapath_id.to_hex ]
+              puts "Switch \#{ datapath_id.to_hex } is DOWN"
+            end
+
+            private
+
+            def show_switches
+              info "All switches = " + @switches.sort.join( ", " )
+            end
+          end
+
+
+    .slide
+      %h1 仮想ネットワーク DSL
+
+      %p 仮想ネットワークにスイッチを追加
+      %pre.brush:.ruby
+        :preserve
+          # network.conf
+          vswitch { dpid 0xabc }  # 仮想スイッチその 1
+          vswitch { dpid 0xdef }  # 仮想スイッチその 2
+
+
+    .slide
+      %h1 Switch Monitor の起動
+
+      %pre.brush:.plain
+        :preserve
+          % ./trema run ./switch-monitor.rb -c ./switch-monitor.conf
+          Switch 0x3 is UP
+          Switch 0x2 is UP
+          Switch 0x1 is UP
+          All switches = 0x1, 0x2, 0x3
+          All switches = 0x1, 0x2, 0x3
+          All switches = 0x1, 0x2, 0x3
+            ...
+          Switch 0x3 is DOWN
+
+
+    .slide
+      %h1 switch_connected が届くまで
+      %ul
+        %li 実は、OpenFlow には switch_connected イベントというものは無い
+        %li Trema がスイッチの接続と切断をイベントに変換
+        %li 裏では次の OpenFlow シーケンスが走る
+      %br
+      %br
+      %pre
+        :preserve
+          スイッチ                          コントローラ
+            |                                |
+            | secchan                        |
+            |------------------------------->|
+            |                                |
+            |                          HELLO |
+            |<-------------------------------|
+            | HELLO                          |
+            |------------------------------->|
+            |                                |
+            |               FEATURES REQUEST |
+            |<-------------------------------|
+            | FEATURES REPLY                 |
+            |------------------------------->|
+            |                                |
+            |                           Init |
+            |<-------------------------------|
+            |                                |
+            |                                | switch_ready
+
+
+    .slide
+      %h1 FDB クラス
+      %pre.brush:.ruby
+        :preserve
+          class FDB
+            def initialize
+              @db = {}
+            end
+
+            def lookup mac
+              if @db[ mac ]
+                @db[ mac ][ :port_number ]
+              else
+                nil
+              end
+            end
+
+            def learn mac, port_number
+              if @db[ mac ]
+                @db[ mac ][ :port_number ] = port_number
+              else
+                @db[ mac ] = { :mac => mac, :port_number => port_number }
+              end
+            end
+          end
+
+
+    .slide
+      %h1 FDB クラス
+      %p TODO: ここで irb でちょっとだけ動かしておくといいかも。
+
+
+    .slide
+      %h1 Counter クラス
+      %pre.brush:.ruby
+        :preserve
+          class Counter
+            def initialize
+              @db = {}
+            end
+
+            def add mac, packet_count, byte_count
+              @db[ mac ] ||= { :packet_count => 0, :byte_count => 0 }
+              @db[ mac ][ :packet_count ] += packet_count
+              @db[ mac ][ :byte_count ] += byte_count
+            end
+
+            def each_pair &block
+              @db.each_pair &block
+            end
+          end
+
+
+    .slide
+      %h1 Counter クラス
+      %p TODO: ここで irb でちょっとだけ動かしておくといいかも。
+
+
+    .slide
+      %h1 TrafficMonitor クラス
+      %pre.brush:.ruby
+        :preserve
+          require "counter"
+          require "fdb"
+
+          class TrafficMonitor < Controller
+            periodic_timer_event :show_counter, 10
+
+            def start
+              # カウンタと FDB を初期化
+            end
+
+            def packet_in datapath_id, message
+              # L2 スイッチング処理
+            end
+
+            def flow_removed datapath_id, message
+              # カウンタにパケット数とバイト数を加算
+            end
+
+            private
+              ...
+
+
+    .slide
+      %h1 TrafficMonitor クラス
+      %p TODO: 動かせるとこでは動かしとく
+
+
+    .slide
+      %h1 問題: TrafficMonitor#start
+      %pre.brush:.ruby
+        :preserve
+          class TrafficMonitor < Controller
+            ...
+
+            # カウンタと FDB を初期化
+            def start
+              @counter = __________
+              @fdb = _______
+            end
+
+
+    .slide
+      %h1 答え: TrafficMonitor#start
+      %pre.brush:.ruby
+        :preserve
+          class TrafficMonitor < Controller
+            ...
+
+            # カウンタと FDB を初期化
+            def start
+              @counter = Counter.new
+              @fdb = FDB.new
+            end
+
+
+    .slide
+      %h1 TrafficMonitor#packet_in
+      %p L2 スイッチングをする
+      %p TODO: シーケンス図で説明
+
+
+    .slide
+      %h1 問題: TrafficMonitor#packet_in
+      %pre.brush:.ruby
+        :preserve
+          class TrafficMonitor < Controller
+            ...
+
+            def packet_in datapath_id, message
+              macsa = message.macsa
+              macda = message.macda
+
+              @fdb.learn _____, message.in_port
+              @counter.add macsa, 1, message.total_len
+              out_port = @fdb.lookup( _____ )
+              if out_port
+                packet_out datapath_id, message, out_port
+                flow_mod datapath_id, macsa, macda, out_port
+              else
+                flood datapath_id, message
+              end
+
+
+    .slide
+      %h1 答え: TrafficMonitor#packet_in
+      %pre.brush:.ruby
+        :preserve
+          class TrafficMonitor < Controller
+            ...
+
+            def packet_in datapath_id, message
+              macsa = message.macsa
+              macda = message.macda
+
+              @fdb.learn macsa, message.in_port
+              @counter.add macsa, 1, message.total_len
+              out_port = @fdb.lookup( macda )
+              if out_port
+                packet_out datapath_id, message, out_port
+                flow_mod datapath_id, macsa, macda, out_port
+              else
+                flood datapath_id, message
+              end
+
+
+    .slide
+      %h1 問題: TrafficMonitor#flow_removed
+      %pre.brush:.ruby
+        :preserve
+          class TrafficMonitor < Controller
+            ...
+
+          def flow_removed datapath_id, message
+            @counter.add(
+              message.match.dl_src,
+              message.____________,
+              message.__________
+            )
+          end
+
+
+    .slide
+      %h1 答え: TrafficMonitor#flow_removed
+      %pre.brush:.ruby
+        :preserve
+          class TrafficMonitor < Controller
+            ...
+
+          def flow_removed datapath_id, message
+            @counter.add(
+              message.match.dl_src,
+              message.packet_count,
+              message.byte_count
+            )
+          end
+
+
+    .slide
+      %h1 問題: TrafficMonitor#flow_mod
+      %pre.brush:.ruby
+        :preserve
+          class TrafficMonitor < Controller
+              ...
+
+            private
+              ...
+
+            def flow_mod datapath_id, macsa, macda, out_port
+              send_flow_mod_add(
+                datapath_id,
+                :hard_timeout => 10,
+                :match => Match.new(:dl_src => _____, :dl_dst => _____),
+                :actions => Trema::ActionOutput.new( ________ )
+              )
+            end
+
+
+    .slide
+      %h1 答え: TrafficMonitor#flow_mod
+      %pre.brush:.ruby
+        :preserve
+          class TrafficMonitor < Controller
+              ...
+
+            private
+              ...
+
+            def flow_mod datapath_id, macsa, macda, out_port
+              send_flow_mod_add(
+                datapath_id,
+                :hard_timeout => 10,
+                :match => Match.new(:dl_src => macsa, :dl_dst => macda),
+                :actions => Trema::ActionOutput.new( out_port )
+              )
+            end
+
+
+    .slide
+      %h1 send_flow_mod_add()
+      %pre.brush:.ruby
+        :preserve
+          send_flow_mod_add(
+            dpid,
+            :match => ExactMatch.from( message ),
+            :buffer_id => message.buffer_id,
+            actions => ActionOutput.new( message.in_port + 1 )
+          )
+
+      %p vs.
+
+      %pre.brush:.c
+        :preserve
+          // C で同じ処理をした場合
+          buffer *flow_mod = create_flow_mod(
+            get_transaction_id(),
+            match,
+            get_cookie(),
+            OFPFC_ADD,
+            0,
+            0,
+            UINT16_MAX,
+            message.buffer_id,
+            OFPP_NONE,
+            0,
+            actions
+          );
+          send_openflow_message( datapath_id, flow_mod );
+
+
+    .slide
+      %h1 問題: TrafficMonitor#packet_out
+      %pre.brush:.ruby
+        :preserve
+
+          class TrafficMonitor < Controller
+              ...
+
+            private
+              ...
+
+            def packet_out datapath_id, message, out_port
+              send_packet_out(
+                datapath_id,
+                :data => message.____,
+                :actions => Trema::ActionOutput.new( _______ )
+              )
+            end
+
+
+    .slide
+      %h1 答え: TrafficMonitor#packet_out
+      %pre.brush:.ruby
+        :preserve
+
+          class TrafficMonitor < Controller
+              ...
+
+            private
+              ...
+
+            def packet_out datapath_id, message, out_port
+              send_packet_out(
+                datapath_id,
+                :data => message.data,
+                :actions => Trema::ActionOutput.new( out_port )
+              )
+            end
+
+
+    .slide
+      %p TODO: C で packet_out やる場合と比較
+
+
+    .slide
+      %h1 問題: TrafficMonitor#flood
+      %pre.brush:.ruby
+        :preserve
+
+          class TrafficMonitor < Controller
+              ...
+
+            private
+              ...
+
+            def packet_out datapath_id, message, out_port
+              send_packet_out(
+                datapath_id,
+                :data => message.data,
+                :actions => Trema::ActionOutput.new( out_port )
+              )
+            end
+
+            def flood datapath_id, message
+              packet_out datapath_id, message, __________
+            end
+
+
+    .slide
+      %h1 答え: TrafficMonitor#flood
+      %pre.brush:.ruby
+        :preserve
+
+          class TrafficMonitor < Controller
+              ...
+
+            private
+              ...
+
+            def packet_out datapath_id, message, out_port
+              send_packet_out(
+                datapath_id,
+                :data => message.data,
+                :actions => Trema::ActionOutput.new( out_port )
+              )
+            end
+
+            def flood datapath_id, message
+              packet_out datapath_id, message, OFPP_FLOOD
+            end
+
+
+    .slide
+      %h1 TrafficMonitor の動かしかた
+      %p TODO
+
+
     .layout{"data-name" => "default"}
       %content
       .footer
