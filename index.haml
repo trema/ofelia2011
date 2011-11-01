@@ -1,0 +1,95 @@
+!!!
+%html
+  %head
+    %meta{:content => "text/html;charset=utf-8", "http-equiv" => "Content-Type"}/
+    / Slide meta data, remove/edit as you see fit
+    %title OpenFlow platform Trema, hands-on session
+    %meta{:content => "Yasuhito Takamiya", :name => "author"}/
+    %meta{:content => "yasuhito@gmail.com", :name => "email"}/
+    %meta{:content => "November 9, 2011", :name => "date"}/
+    / Slippy core file and dependencies
+    %script{:src => "slippy/src/jquery.min.js", :type => "text/javascript"}
+    %script{:src => "slippy/src/jquery.history.js", :type => "text/javascript"}
+    %script{:src => "slippy/src/slippy.js", :type => "text/javascript"}
+    / Slippy structural styles
+    %link{:href => "slippy/src/slippy.css", :rel => "stylesheet", :type => "text/css"}/
+    / Slippy theme
+    %link{:href => "slippy/src/slippy-pure.css", :rel => "stylesheet", :type => "text/css"}/
+    / Syntax highlighting core file
+    %script{:src => "slippy/src/highlighter/shCore.js", :type => "text/javascript"}
+    / Syntax highlighting brushes, remove those you don't need
+    %script{:src => "slippy/src/highlighter/shBrushBash.js", :type => "text/javascript"}
+    %script{:src => "slippy/src/highlighter/shBrushCpp.js", :type => "text/javascript"}
+    %script{:src => "slippy/src/highlighter/shBrushCSharp.js", :type => "text/javascript"}
+    %script{:src => "slippy/src/highlighter/shBrushCss.js", :type => "text/javascript"}
+    %script{:src => "slippy/src/highlighter/shBrushDelphi.js", :type => "text/javascript"}
+    %script{:src => "slippy/src/highlighter/shBrushDiff.js", :type => "text/javascript"}
+    %script{:src => "slippy/src/highlighter/shBrushGroovy.js", :type => "text/javascript"}
+    %script{:src => "slippy/src/highlighter/shBrushJava.js", :type => "text/javascript"}
+    %script{:src => "slippy/src/highlighter/shBrushJScript.js", :type => "text/javascript"}
+    %script{:src => "slippy/src/highlighter/shBrushPhp.js", :type => "text/javascript"}
+    %script{:src => "slippy/src/highlighter/shBrushPlain.js", :type => "text/javascript"}
+    %script{:src => "slippy/src/highlighter/shBrushPython.js", :type => "text/javascript"}
+    %script{:src => "slippy/src/highlighter/shBrushRuby.js", :type => "text/javascript"}
+    %script{:src => "slippy/src/highlighter/shBrushScala.js", :type => "text/javascript"}
+    %script{:src => "slippy/src/highlighter/shBrushSql.js", :type => "text/javascript"}
+    %script{:src => "slippy/src/highlighter/shBrushVb.js", :type => "text/javascript"}
+    %script{:src => "slippy/src/highlighter/shBrushXml.js", :type => "text/javascript"}
+    / Syntax highlighting styles
+    %link{:href => "slippy/src/highlighter/shCore.css", :rel => "stylesheet", :type => "text/css"}/
+    %link{:href => "slippy/src/highlighter/shThemeEclipse.css", :rel => "stylesheet", :type => "text/css"}/
+    / Slippy init code
+    :javascript
+      $(function() {
+          $(".slide").slippy({
+              // settings go here
+              // possible values are:
+              //  - animLen, duration for default animations (0 = disabled)
+              //  - animInForward, receives a slide and animates it
+              //  - animInRewind, receives a slide and animates it
+              //  - animOutForward, receives a slide and animates it
+              //  - animOutRewind, receives a slide and animates it
+              //  - baseWidth, defines the base for img resizing, if you don't want only
+              //    full-width images, specify this as the pixel width of a slide so that
+              //    images are scaled properly (default is 620px wide)
+              //  - ratio, defines the width/height ratio of the slides, defaults to 1.3 (620x476)
+              //  - margin, the fraction of screen to use as slide margin, defaults to 0.15
+          });
+          SyntaxHighlighter.all();
+      });
+    / Custom style for this deck
+    :css
+      .slide.nofooter {
+        border: 0;
+        background: 0;
+      }
+  %body
+
+
+    .slide
+      .vcenter
+        %h2 OpenFlow platform Trema, hands-on session
+        %br
+        %br
+        %br
+        %p Hideyuki Shimonishi, Yasuhito Takamiya, Kazushi Sugyo (NEC)
+        %p CHANGE & OFELIA Summer School 2011
+        %p November 9, 2011
+
+
+    .layout{"data-name" => "default"}
+      %content
+      .footer
+        %span.left
+          %b Hideyuki Shimonishi, Yasuhito Takamiya, Kazushi Sugyo
+        %span.right
+          Trema on
+          %a{:href => "http://github.com/trema/trema/"} github
+        %span.left CHANGE & OFELIA Summer School 2011
+        %span.right
+          Twitter
+          %a{:href => "http://twitter.com/trema_news"} @trema_news
+
+
+    .layout.nofooter{"data-name" => "alt"}
+      %content
