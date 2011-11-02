@@ -78,9 +78,160 @@
 
 
     .slide
-      %h1 Hello, Trema!
+      %h1 なぜ、○○フレームワーク?
+      %ul
+        %li Web フレームワーク: Rails, Sinatra, Lift
+        %li よくある処理が簡単に短く書ける
+        %li コーディング → テスト → デバッグのループを緊密に
+
+
+    .slide
+      %h1 Trema フレームワークの特長
+      %ul
+        %li Ruby or C (Ruby の生産性 + C の性能)
+        %li ノート PC 一台で開発とデバッグを完結できる
+        %li "今どき" のアジャイル開発環境 (ユニットテスト、受け入れテスト etc.)
+        %li 豊富なサンプルコード
+
+
+    .slide
+      %h1 Trema の設計思想
+      .vcenter
+        %h1 「短く書けるようにする」
+
+
+    .slide
+      %h1 なぜ短くしたいのか？
+      %h2 短ければ短いほど、
+      %ul
+        %li 早く完成させることができ、
+        %li バグが少なく、
+        %li すぐ読むことができ、
+        %li メンテナンスも楽だから
       %pre.brush:.ruby
         :preserve
+          # 例: Trema で書いたリピータハブ
+          class RepeaterHub < Controller
+            def packet_in datapath_id, message
+              send_flow_mod_add(
+                datapath_id,
+                :match => ExactMatch.from( message ),
+                :actions => ActionOutput.new( OFPP_FLOOD )
+              )
+              send_packet_out(
+                datapath_id,
+                :data => message.data,
+                :actions => ActionOutput.new( OFPP_FLOOD )
+              )
+            end
+          end
+
+
+    .slide
+      %h1 NOX じゃダメなの？
+      %p なんかいろいろと冗長だ
+      %pre.brush:.python
+        :preserve
+          class pyswitch(Component):
+              def __init__(self, ctxt):
+                  global inst
+                  Component.__init__(self, ctxt)
+                  self.st = {}
+
+                  inst = self
+
+              def install(self):
+                  inst.register_for_packet_in(packet_in_callback)
+                  inst.register_for_datapath_leave(datapath_leave_callback)
+                  inst.register_for_datapath_join(datapath_join_callback)
+                  inst.post_callback(1, timer_callback)
+
+              def getInterface(self):
+                  return str(pyswitch)
+
+              def getFactory():
+                  class Factory:
+                      def instance(self, ctxt):
+                          return pyswitch(ctxt)
+
+                  return Factory()
+
+
+    .slide
+      %h1 Beacon じゃダメなの?
+      %p
+        プログラマに
+        %b 「パブリック スタティック ボイド メイン」
+        と書かせる類の言語は好きじゃない
+      %div{:align => "center"}
+        %img{:src => "./static-typing.gif", :height => "40%"}/
+        %p 「よし! これでこの辺も少し整理できたぞ!」
+
+
+    .slide
+      %h1 正しい説明
+      %h2 使い分けてください:
+      %ul
+        %li Ruby や C で書く人: Trema
+        %li Java で書く人: Beacon
+        %li Python や C++ で書く人: NOX
+
+
+    .slide
+      %h1 Trema を使った開発の流れ
+      %h2 ノート PC 1台ですべてできます
+      %ol
+        %li 仮想ネットワーク (スイッチ + ホスト + リンク) を定義
+        %li コントローラを書いて仮想ネットワークで実行
+        %li テストパケットの送受信
+        %li フローテーブルやメッセージなどのダンプ
+        %li 実環境へのデプロイ
+
+
+    .slide
+      %h1 Today's Goal
+      %ul
+        %li Introduction to Trema with hands-on session
+        %li How to setup Trema
+        %li How to develop in Trema
+
+
+    .slide
+      %h1 Setup Trma
+      %pre.brush:.bash
+        :preserve
+          $ git clone git://github.com/trema/trema
+          $ ./trema/build.rb
+          (There is no Step Three!!)
+
+
+    .slide
+      %h1 Coding Challenge #1: Hello Trema!
+      %ul
+        %li Trema の最初のプログラム
+        %li 画面に Hello Trema! と表示するだけ
+
+
+    .slide
+      %h1 It's Shakyo Time!
+
+      %span.right
+        %img{:src => "./shakyo.jpg", :height => "20%"}/
+
+      %ul
+        %li
+          Open hello.rb with your favorite editor and let's
+          %b shyakyo
+          the following code.
+        %li Shyakyo = The Japanese form of sutra transcription
+        %li Just type it as is ... don't think, be calm like a Zen monk. The details are explained later.
+
+      %span.right
+        %small This image was taken from http://bit.ly/tI6OXP
+
+      %pre.brush:.ruby
+        :preserve
+          # hello.rb
           class HelloController < Controller
             def start
               puts "Hello, Trema!"
@@ -89,64 +240,209 @@
 
 
     .slide
-      %h1 Ruby in 3 minutes
-      %p TODO: irb でインタラクティブに
+      %h1 How to run
+      %p You can execute *.rb with the following command:
+      %pre.brush:.bash
+        :preserve
+          % ./trema run ./hello.rb
+          Hello, Trema!
 
 
     .slide
-      %h1 Switch Monitor
+      %h1 Ruby in one minute
+      %h2 Class definition
       %pre.brush:.ruby
         :preserve
-          class SwitchMonitor < Controller
-            periodic_timer_event :show_switches, 10
-
-            def start
-              @switches = []
-            end
-
-            def switch_ready datapath_id
-              @switches << datapath_id.to_hex
-              puts "Switch \#{ datapath_id.to_hex } is UP"
-            end
-
-            def switch_disconnected datapath_id
-              @switches -= [ datapath_id.to_hex ]
-              puts "Switch \#{ datapath_id.to_hex } is DOWN"
-            end
-
-            private
-
-            def show_switches
-              info "All switches = " + @switches.sort.join( ", " )
+          class ClassName < SuperClassName
+            def method_name arg1, arg2
+              # method body
             end
           end
 
 
     .slide
-      %h1 仮想ネットワーク DSL
-
-      %p 仮想ネットワークにスイッチを追加
+      %h1 まとめ: Hello, Trema
       %pre.brush:.ruby
         :preserve
-          # network.conf
-          vswitch { dpid 0xabc }  # 仮想スイッチその 1
-          vswitch { dpid 0xdef }  # 仮想スイッチその 2
+          class HelloController < Controller
+            def start
+              puts "Hello, Trema!"
+            end
+          end
+
+      %ul
+        %li Defines a class named HelloController
+        %li It is derived from Controller super-class
+        %li HelloController has a method named start
+        %li It outputs a String "Hello, Trema!" to the stdout.
+        %li The start method is a start hook and is invoked at startup.
 
 
     .slide
-      %h1 Switch Monitor の起動
+      %h1 Coding Challenge #2: Switch Monitor
+      %ul
+        %li ネットワーク上の OpenFlow スイッチをリアルタイム更新するアプリ
+        %li echo メッセージでスイッチの生死を確認
+        %li switch_ready ハンドラでスイッチの起動を捕捉
+        %li switch_disconnected ハンドラでスイッチの停止を捕捉
 
-      %pre.brush:.plain
+
+    .slide
+      %h1 Shyakyo: Variable and String in Ruby
+      %ul
+        %li irb = interactive ruby (REPL)
+        %li "irb(main):001:0>" is a irb prompt so you need not type it
+      %pre.brush:.ruby
         :preserve
-          % ./trema run ./switch-monitor.rb -c ./switch-monitor.conf
-          Switch 0x3 is UP
-          Switch 0x2 is UP
-          Switch 0x1 is UP
-          All switches = 0x1, 0x2, 0x3
-          All switches = 0x1, 0x2, 0x3
-          All switches = 0x1, 0x2, 0x3
-            ...
-          Switch 0x3 is DOWN
+          % irb
+          irb(main):001:0> name = "Spider-Man"
+          => "Spider-Man"
+
+          irb(main):002:0> puts "My name is \#{ name }"
+          My name is Spider-Man
+          => nil
+
+
+    .slide
+      %h1 Shyakyo: List in Ruby
+      %pre.brush:.ruby
+        :preserve
+          % irb
+          irb(main):001:0> zoo = []
+          => []
+
+          irb(main):002:0> zoo << "bat"
+          => ["bat"]
+
+          irb(main):003:0> zoo << "gnu"
+          => ["bat", "gnu"]
+
+          irb(main):004:0> zoo << "dog"
+          => ["bat", "gnu", "dog"]
+
+          irb(main):005:0> zoo -= ["bat"]
+          => ["gnu", "dog"]
+
+          irb(main):006:0> zoo.sort
+          => ["dog", "gnu"]
+
+
+    .slide
+      %h1 問題: Switch Monitor
+      %p 次の 3 箇所の下線部を埋めよ
+      %pre.brush:.ruby
+        :preserve
+          class SwitchMonitor < Controller
+            # 10 秒ごとに指定したメソッドを実行
+            periodic_timer_event :______________, 10
+
+            # スイッチが接続したときのハンドラ (引数 = スイッチの dpid)
+            def ____________ datapath_id
+              # ...
+            end
+
+            # スイッチが切断したときのハンドラ (引数 = スイッチの dpid)
+            def ___________________ datapath_id
+              # ...
+            end
+
+            private
+
+            # スイッチの一覧を表示
+            def show_switches
+              # ...
+            end
+          end
+
+
+    .slide
+      %h1 回答: Switch Monitor
+      %pre.brush:.ruby
+        :preserve
+          class SwitchMonitor < Controller
+            # 10 秒ごとに指定したメソッドを実行
+            periodic_timer_event :show_switches, 10
+
+            # スイッチが接続したときのハンドラ (引数 = スイッチの dpid)
+            def switch_ready datapath_id
+              # ...
+            end
+
+            # スイッチが切断したときのハンドラ (引数 = スイッチの dpid)
+            def switch_disconnected datapath_id
+              # ...
+            end
+
+            private
+
+            # スイッチの一覧を表示
+            def show_switches
+              # ...
+            end
+          end
+
+
+    .slide
+      %h1 ほかにどんなイベントが？
+      %ul
+        %li features_reply
+        %li packet_in
+        %li flow_removed
+        %li port_status
+        %li stats_reply
+        %li openflow_error
+        %li get_config_reply
+        %li barrier_reply
+        %li vendor
+        %li queue_get_config_reply
+        %li list_switches_reply
+
+
+    .slide
+      %h1 次の仕様の switch_ready ハンドラを実装せよ
+      %ul
+        %li スイッチが接続すると、dpid の 16 進数表記を @switches に追加する
+        %li "Switch 0xabc is UP" のように表示
+        %li ヒント: number.to_hex で number を 16 進数表記に変換
+      %pre.brush:.ruby
+        :preserve
+          class SwitchMonitor < Controller
+            periodic_timer_event :show_switches, 10
+
+            # 起動時にスイッチのリストを初期化
+            def start
+              @switches = []
+            end
+
+            # スイッチが接続したときのハンドラ (引数 = スイッチの dpid)
+            def switch_ready datapath_id
+              @switches << __________________
+              puts "_____________________________________"
+            end
+
+              ...
+
+
+    .slide
+      %h1 次の仕様の switch_disconnected ハンドラを実装せよ
+      %ul
+        %li スイッチが切断すると、dpid の 16 進数表記を @switches からはずす
+        %li "Switch 0xabc is DOWN" のように表示
+      %pre.brush:.ruby
+        :preserve
+          class SwitchMonitor < Controller
+            periodic_timer_event :show_switches, 10
+
+              ...
+
+
+            # スイッチが切断したときのハンドラ (引数 = スイッチの dpid)
+            def switch_disconnected datapath_id
+              @switches -= ______________________
+              puts "_______________________________________"
+            end
+
+              ...
 
 
     .slide
@@ -181,7 +477,116 @@
 
 
     .slide
-      %h1 FDB クラス
+      %h1 次の仕様の show_switches メソッドを実装せよ
+      %ul
+        %li スイッチの一覧を "All switches = 0xabc, 0xdef, ..." のように表示
+      %pre.brush:.ruby
+        :preserve
+          class SwitchMonitor < Controller
+            periodic_timer_event :show_switches, 10
+
+              ...
+
+
+            private
+
+            def show_switches
+              puts "All switches = " + @switches._________________
+            end
+          end
+
+
+    .slide
+      %h1 解答: Switch Monitor
+      %pre.brush:.ruby
+        :preserve
+          class SwitchMonitor < Controller
+            periodic_timer_event :show_switches, 10
+
+            def start
+              @switches = []
+            end
+
+            def switch_ready datapath_id
+              @switches << datapath_id.to_hex
+              puts "Switch \#{ datapath_id.to_hex } is UP"
+            end
+
+            def switch_disconnected datapath_id
+              @switches -= [ datapath_id.to_hex ]
+              puts "Switch \#{ datapath_id.to_hex } is DOWN"
+            end
+
+            private
+
+            def show_switches
+              puts "All switches = " + @switches.sort.join( ", " )
+            end
+          end
+
+
+    .slide
+      %h1 仮想ネットワーク DSL
+
+      %p 仮想ネットワークにスイッチを追加
+      %pre.brush:.ruby
+        :preserve
+          # network.conf
+          vswitch { dpid 0xabc }  # 仮想スイッチその 1
+          vswitch { dpid 0xdef }  # 仮想スイッチその 2
+
+
+    .slide
+      %h1 Switch Monitor の起動
+
+      %pre.brush:.plain
+        :preserve
+          % ./trema run ./switch-monitor.rb -c ./switch-monitor.conf
+          Switch 0x3 is UP
+          Switch 0x2 is UP
+          Switch 0x1 is UP
+          All switches = 0x1, 0x2, 0x3
+          All switches = 0x1, 0x2, 0x3
+          All switches = 0x1, 0x2, 0x3
+            ...
+
+
+    .slide
+      %h1 スイッチをわざと落とす
+
+      %p 別ターミナルで trema kill を実行
+      %pre.brush:.bash
+        :preserve
+          % ./trema kill 0x3
+
+      %p すると trema run を実行したターミナルで "Switch 0x??? is DOWN" が表示される
+      %pre.brush:.plain
+        :preserve
+          % ./trema run ./switch-monitor.rb -c ./switch-monitor.conf
+          Switch 0x3 is UP
+          Switch 0x2 is UP
+          Switch 0x1 is UP
+          All switches = 0x1, 0x2, 0x3
+          All switches = 0x1, 0x2, 0x3
+          All switches = 0x1, 0x2, 0x3
+            ...
+
+          Switch 0x3 is DOWN
+
+
+    .slide
+      %h1 まとめ: Switch Monitor
+      %ul
+        %li イベントハンドラを書くことでコントローラのロジックを記述 (ex. switch_ready, switch_disconnected etc.)
+        %li ネットワーク DSL を使えば OpenFlow スイッチを持っていなくても動作テストができる。
+
+
+    .slide
+      %h1 Coding Challenge #3: Traffic Monitor
+
+
+    .slide
+      %h1 FDB Class
       %pre.brush:.ruby
         :preserve
           class FDB
@@ -208,8 +613,29 @@
 
 
     .slide
-      %h1 FDB クラス
-      %p TODO: ここで irb でちょっとだけ動かしておくといいかも。
+      %h1 FDB Class
+      %pre.brush:.ruby
+        :preserve
+          irb(main):001:0> require "fdb"
+          => true
+
+          irb(main):002:0> fdb = FDB.new
+          => #&lt;FDB:0xb73591e0 @db={}>
+
+          irb(main):003:0> fdb.lookup "00:00:00:00:00:01"
+          => nil
+
+          irb(main):004:0> fdb.learn "00:00:00:00:00:01", 1
+          => {:mac=>"00:00:00:00:00:01", :port_number=>1}
+
+          irb(main):005:0> fdb.lookup "00:00:00:00:00:01"
+          => 1
+
+          irb(main):006:0> fdb.learn "00:00:00:00:00:02", 2
+          => {:mac=>"00:00:00:00:00:02", :port_number=>2}
+
+          irb(main):007:0> fdb.lookup "00:00:00:00:00:02"
+          => 2
 
 
     .slide
@@ -235,7 +661,29 @@
 
     .slide
       %h1 Counter クラス
-      %p TODO: ここで irb でちょっとだけ動かしておくといいかも。
+      %pre.brush:.ruby
+        :preserve
+          irb(main):001:0> require "counter"
+          => true
+
+          irb(main):002:0> counter = Counter.new
+          => #<Counter:0xb7366d2c @db={}>
+
+          irb(main):003:0> counter.add "00:00:00:00:00:01", 1, 100
+          => 100
+
+          irb(main):004:0> counter.add "00:00:00:00:00:02", 1, 100
+          => 100
+
+          irb(main):005:0> counter.add "00:00:00:00:00:02", 1, 100
+          => 200
+
+          irb(main):006:0> counter.each_pair do | mac, counter |
+          irb(main):007:1*   p counter
+          irb(main):008:1> end
+          {:packet_count=>1, :byte_count=>100}
+          {:packet_count=>2, :byte_count=>200}
+          => {"00:00:00:00:00:01"=>{:packet_count=>1, :byte_count=>100}, "00:00:00:00:00:02"=>{:packet_count=>2, :byte_count=>200}}
 
 
     .slide
