@@ -75,82 +75,87 @@
         %br
         %p
           Hideyuki Shimonishi
+          %a{:href => "http://twitter.com/hide_shimonishi"} @hide_shimonishi
           %br
           Yasuhito Takamiya
+          %a{:href => "http://twitter.com/yasuhito"} @yasuhito
           %br
-          Kazushi Sugyo (NEC)
+          Kazushi Sugyo
+          %br
+          NEC
+          %br
           %br
           %p CHANGE & OFELIA Summer School
           %p November 9, 2011
 
 
     .slide
-      %h1 自己紹介
-      %p Trema チーム @ NEC 中央研究所
+      %h1 We are...
+      %p Trema team from NEC laboratories
       %ul
-        %li 下西 (元 ？)
-        %li 高宮 (元 分散ミドルとか HPC)
-        %li 須堯 (元 KAME、スーパーハカー)
+        %li Hideyuki (Networking Ninja)
+        %li Yasuhito (HPC and Middleware)
+        %li Kazushi (KAME: IPv6 stack for *BSD)
 
 
     .slide
-      %h1 Q: なぜフレームワーク?
+      %h1 Q: Why Framework?
       %p
-        %b A: 生産性が高いから (例: Rails, Sinatra)
+        %b A: High productivity (e.g., Rails, Sinatra)
       %ul
-        %li 「よくある処理」が簡単に短く書ける
-        %li フルスタック: ノート一台で開発できる
-        %li 「コーディング → テスト → デバッグ」のループをタイトに回せる
+        %li "common operations" can be written shortly
+        %li Full-stack: develop with your laptop
+        %li Tight loops of "coding, testing, and debugging"
       %br
       %p
-        %span{:style => "background-color: #ffff00"} ...そして、OpenFlow には今までこうしたフレームワークが無かった
+        %span{:style => "background-color: #ffff00"} ...And there were no such programming framework in OpenFlow yet.
 
 
     .slide
-      %h1 Trema フレームワークの特長
+      %h1 Features of Trema Framework
       %p
-        %span{:style => "background-color: #ffff00"} 「今風な」OpenFlow フレームワーク
+        %span{:style => "background-color: #ffff00"} Most "modern" framework for OpenFlow
       %ul
-        %li Ruby or C (Ruby の生産性 + C の性能)
-        %li フルスタック: ノート一台で開発できる
-        %li github 上でのオープンな開発 (GPL2)
+        %li Ruby or C (Ruby's productivity + C's speed)
+        %li Full-stack: develop with your laptop
+        %li Open development process on github (GPL2)
 
 
     .slide
-      %h1 業界の声
+      %h1 Voices from Exparts
       %p
         %i "I poked through Trema recently.  It looks like a *great* project. Very clean."
-        %i (openflow-discuss ML にて)
+        %i (openflow-discuss list)
       .right
         %p Martin Casado (Nicira CTO)
 
 
     .slide
-      %h1 Trema の設計思想
+      %h1 Trema Design Concept
       .vcenter
-        %h1 「短く書けて、すぐ動かせる」
+        %h1 "Write shortly, run it quickly"
 
 
     .slide
-      %h1 Trema の設計思想
+      %h1 Trema Design Concept
       .vcenter
         %h1
-          「
-          %span{:style => "background-color: #ffff00"}短く書けて、
-          すぐ動かせる」
-        
+          "
+          %span{:style => "background-color: #ffff00"}Write shortly,
+          run it quickly"
+
 
     .slide
-      %h1 なぜ短く書きたいのか？
-      %p 短ければ短いほど、
+      %h1 Why want to write shortly?
+      %p If you can write your code more shortly,
       %ul
-        %li 早くサッと作れて、
-        %li バグの発生率が小さく、
-        %li 後々のメンテが楽だから
+        %li more quickly you can finish coding,
+        %li less incidence of software bug,
+        %li and easier to maintainance your code.
 
         
     .slide
-      %h1 例: Trema で書いたリピータハブ
+      %h1 Example: Trema repeater-hub
       %pre{:class => "brush: ruby; highlight: [3, 8]"}
         :preserve
           class RepeaterHub < Controller
@@ -168,21 +173,21 @@
             end
           end
       %p
-        必要な処理だけ書けば OK
+        Only need essential method invocations in this code.
         %br
-        (flow_mod して FLOOD)
+        (flow_mod then FLOOD)
 
 
     .slide
-      %h1 比べてみよう
+      %h1 Let's compare Trema with
       %ul
-        %li NOX (Python バインディング)
+        %li NOX (Python binding)
         %li Beacon (Java)
 
 
     .slide
-      %h1 NOX (Python バインディング)
-      %p まっ・たく・冗・長・だ
+      %h1 NOX (Python binding)
+      %p Redundunt code!
       %pre{:class => "brush: python; highlight: [2, 8, 17]"}
         :preserve
           class pyswitch(Component):
@@ -210,71 +215,71 @@
 
     .slide
       %h1 Beacon (Java)
-      %p そもそも Java が嫌い (静的型検査なのに型推論がほぼ無いのでコードが長くなる)
+      %p We dislike Java (static typing system WITHOUT good type inference mechanism makes code looong!)
       %div{:align => "center"}
         %img{:src => "./static-typing.gif", :height => "60%"}/
 
 
     .slide
-      %h1 Trema の設計思想
+      %h1 Trema Design Concept
       .vcenter
         %h1
-          「短く書けて、
-          %span{:style => "background-color: #ffff00"} すぐ動かせる
-          」
+          "Write shortly,
+          %span{:style => "background-color: #ffff00"} run it quickly
+          "
 
 
     .slide
-      %h1 OpenFlow 開発のめんどくささ
+      %h1 Pain of OpenFlow development
       %p
-        %i "OpenFlow は開発環境の構築が面倒だ"
-        %i (ネットワーク設定や VM 構築とか)
+        %i "It is complicated to setup OpenFlow development environment"
+        %i (network configurations and VM installations etc.)
 
       %br
 
       %p
-        %i "俺 OpenFlow スイッチ持ってないよ"
+        %i "I don't have a OpenFlow switch."
 
       %br
 
       %p
-        %i "そもそも OpenFlow の実験ができるネットワーク持ってないし..."
+        %i "In the first place, I don't have a network usable for OpenFlow experiments."
 
       .right
-        %p プログラマの声
+        %p anonymous programmer
 
 
     .slide
-      %h1 Trema なら簡単にできます!
+      %h1 Trema Works with No Pain
       %p
-        開発マシン上に仮想ネットワークを構築し、その上でコントローラの様々な機能テストができます
+        You can build a virtual network on your laptop and test your own controllers on it.
       %ul
-        %li コントローラの実行
-        %li 仮想ホスト間でのパケット送受信テスト
-        %li スイッチのフローテーブルのダンプ etc.
+        %li Run your controller without modifications
+        %li Send and receive test packets between virtual hosts
+        %li Dump switch flow-tables etc.
 
       %br
 
-      %p.right 使い勝手を紹介→
+      %p.right See how it works...
         
 
     .slide
       .vcenter
-        %h1 Trema を使った開発の流れ
+        %h1 Common work flow of development with Trema
 
 
     .slide
-      %h1 セットアップしてみよう!
+      %h1 Let's setup Trema!
       %pre.brush:.plain
         :preserve
           $ git clone git://github.com/trema/trema.git
           $ ./trema/build.rb
-      %p たったこれだけ!
+      %p And there are no step three!
 
 
     .slide
-      %h1 コントローラを書いてみよう!
-      %p コントローラはクラスとして定義し、Controller クラスを継承
+      %h1 Write your first controller
+      %p Define a controller as a class and make it derived from Controller class
       %pre.brush:.ruby
         :preserve
           # simple-controller.rb
@@ -283,7 +288,7 @@
           end
       %br
 
-      %p trema run コマンドで起動
+      %p Run it with "trema run" command:
       %pre.brush:.plain
         :preserve
           % ./trema run ./simple-controller.rb
