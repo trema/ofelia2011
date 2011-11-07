@@ -13,8 +13,8 @@
     %script{:src => "slippy/src/slippy.js", :type => "text/javascript"}
     / Slippy structural styles
     %link{:href => "slippy/src/slippy.css", :rel => "stylesheet", :type => "text/css"}/
-    / Slippy theme
-    %link{:href => "slippy/src/slippy-pure.css", :rel => "stylesheet", :type => "text/css"}/
+    / Trema theme
+    %link{:href => "trema.css", :rel => "stylesheet", :type => "text/css"}/
     / Syntax highlighting core file
     %script{:src => "slippy/src/highlighter/shCore.js", :type => "text/javascript"}
     / Syntax highlighting brushes, remove those you don't need
@@ -37,7 +37,7 @@
     %script{:src => "slippy/src/highlighter/shBrushXml.js", :type => "text/javascript"}
     / Syntax highlighting styles
     %link{:href => "slippy/src/highlighter/shCore.css", :rel => "stylesheet", :type => "text/css"}/
-    %link{:href => "slippy/src/highlighter/shThemeEclipse.css", :rel => "stylesheet", :type => "text/css"}/
+    %link{:href => "slippy/src/highlighter/shThemeDefault.css", :rel => "stylesheet", :type => "text/css"}/
     / Slippy init code
     :javascript
       $(function() {
@@ -68,49 +68,91 @@
 
     .slide
       .vcenter
-        %h2 OpenFlow platform Trema, hands-on session
+        %h2 OpenFlow platform Trema
+        %h2 Hands-on session
         %br
         %br
         %br
-        %p Hideyuki Shimonishi, Yasuhito Takamiya, Kazushi Sugyo (NEC)
-        %p CHANGE & OFELIA Summer School 2011
-        %p November 9, 2011
+        %p
+          Hideyuki Shimonishi
+          %br
+          Yasuhito Takamiya
+          %br
+          Kazushi Sugyo (NEC)
+          %br
+          %p CHANGE & OFELIA Summer School
+          %p November 9, 2011
 
 
     .slide
-      %h1 なぜ、○○フレームワーク?
+      %h1 自己紹介
+      %p Trema チーム @ NEC 中央研究所
       %ul
-        %li Web フレームワーク: Rails, Sinatra, Lift
-        %li よくある処理が簡単に短く書ける
-        %li コーディング → テスト → デバッグのループを緊密に
+        %li 下西 (元 ？)
+        %li 高宮 (元 分散ミドルとか HPC)
+        %li 須堯 (元 KAME、スーパーハカー)
+
+
+    .slide
+      %h1 Q: なぜフレームワーク?
+      %p
+        %b A: 生産性が高いから (例: Rails, Sinatra)
+      %ul
+        %li 「よくある処理」が簡単に短く書ける
+        %li フルスタック: ノート一台で開発できる
+        %li 「コーディング → テスト → デバッグ」のループをタイトに回せる
+      %br
+      %p
+        %span{:style => "background-color: #ffff00"} ...そして、OpenFlow には今までこうしたフレームワークが無かった
 
 
     .slide
       %h1 Trema フレームワークの特長
+      %p
+        %span{:style => "background-color: #ffff00"} 「今風な」OpenFlow フレームワーク
       %ul
         %li Ruby or C (Ruby の生産性 + C の性能)
-        %li ノート PC 一台で完結できる (フルスタック)
-        %li "今どき" のアジャイル開発環境 (ユニットテスト、受け入れテスト etc.)
-        %li 豊富なサンプルコード
+        %li フルスタック: ノート一台で開発できる
+        %li github 上でのオープンな開発 (GPL2)
+
+
+    .slide
+      %h1 業界の声
+      %p
+        %i "I poked through Trema recently.  It looks like a *great* project. Very clean."
+        %i (openflow-discuss ML にて)
+      .right
+        %p Martin Casado (Nicira CTO)
 
 
     .slide
       %h1 Trema の設計思想
       .vcenter
-        %h1 「短く書けるようにする」
+        %h1 「短く書けて、すぐ動かせる」
 
 
     .slide
-      %h1 なぜ短くしたいのか？
-      %h2 短ければ短いほど、
+      %h1 Trema の設計思想
+      .vcenter
+        %h1
+          「
+          %span{:style => "background-color: #ffff00"}短く書けて、
+          すぐ動かせる」
+        
+
+    .slide
+      %h1 なぜ短く書きたいのか？
+      %p 短ければ短いほど、
       %ul
-        %li 早く完成させることができ、
-        %li バグが少なく、
-        %li すぐ読むことができ、
-        %li メンテナンスも楽だから
-      %pre.brush:.ruby
+        %li 早くサッと作れて、
+        %li バグの発生率が小さく、
+        %li 後々のメンテが楽だから
+
+        
+    .slide
+      %h1 例: Trema で書いたリピータハブ
+      %pre{:class => "brush: ruby; highlight: [3, 8]"}
         :preserve
-          # 例: Trema で書いたリピータハブ
           class RepeaterHub < Controller
             def packet_in datapath_id, message
               send_flow_mod_add(
@@ -120,24 +162,34 @@
               )
               send_packet_out(
                 datapath_id,
-                :data => message.data,
+                :packet_in => message,
                 :actions => ActionOutput.new( OFPP_FLOOD )
               )
             end
           end
+      %p
+        必要な処理だけ書けば OK
+        %br
+        (flow_mod して FLOOD)
 
 
     .slide
-      %h1 NOX じゃダメなの？
-      %p なんかいろいろと冗長だ
-      %pre.brush:.python
+      %h1 比べてみよう
+      %ul
+        %li NOX (Python バインディング)
+        %li Beacon (Java)
+
+
+    .slide
+      %h1 NOX (Python バインディング)
+      %p まっ・たく・冗・長・だ
+      %pre{:class => "brush: python; highlight: [2, 8, 17]"}
         :preserve
           class pyswitch(Component):
               def __init__(self, ctxt):
                   global inst
                   Component.__init__(self, ctxt)
                   self.st = {}
-
                   inst = self
 
               def install(self):
@@ -153,56 +205,88 @@
                   class Factory:
                       def instance(self, ctxt):
                           return pyswitch(ctxt)
-
                   return Factory()
 
 
     .slide
-      %h1 Beacon じゃダメなの?
-      %p
-        プログラマに
-        %b 「パブリック スタティック ボイド メイン」
-        と書かせる類の言語は好きじゃない
+      %h1 Beacon (Java)
+      %p そもそも Java が嫌い (静的型検査なのに型推論がほぼ無いのでコードが長くなる)
       %div{:align => "center"}
-        %img{:src => "./static-typing.gif", :height => "40%"}/
-        %p 「よし! これでこの辺も少し整理できたぞ!」
+        %img{:src => "./static-typing.gif", :height => "60%"}/
 
 
     .slide
-      %h1 正しい説明
-      %h2 使い分けてください:
+      %h1 Trema の設計思想
+      .vcenter
+        %h1
+          「短く書けて、
+          %span{:style => "background-color: #ffff00"} すぐ動かせる
+          」
+
+
+    .slide
+      %h1 OpenFlow 開発のめんどくささ
+      %p
+        %i "OpenFlow は開発環境の構築が面倒だ"
+        %i (ネットワーク設定や VM 構築とか)
+
+      %br
+
+      %p
+        %i "俺 OpenFlow スイッチ持ってないよ"
+
+      %br
+
+      %p
+        %i "そもそも OpenFlow の実験ができるネットワーク持ってないし..."
+
+      .right
+        %p プログラマの声
+
+
+    .slide
+      %h1 Trema なら簡単にできます!
+      %p
+        開発マシン上に仮想ネットワークを構築し、その上でコントローラの様々な機能テストができます
       %ul
-        %li Ruby や C で書く人: Trema
-        %li Java で書く人: Beacon
-        %li Python や C++ で書く人: NOX
+        %li コントローラの実行
+        %li 仮想ホスト間でのパケット送受信テスト
+        %li スイッチのフローテーブルのダンプ etc.
+
+      %br
+
+      %p.right 使い勝手を紹介→
+        
+
+    .slide
+      .vcenter
+        %h1 Trema を使った開発の流れ
 
 
     .slide
-      %h1 Trema を使った開発の流れ
-      %h2 ノート PC 1台ですべてできます
-      %ol
-        %li 仮想ネットワーク (スイッチ + ホスト + リンク) を定義
-        %li コントローラを書いて仮想ネットワークで実行
-        %li テストパケットの送受信
-        %li フローテーブルやメッセージなどのダンプ
-        %li 実環境へのデプロイ
-
-
-    .slide
-      %h1 Today's Goal
-      %ul
-        %li Introduction to Trema with hands-on session
-        %li How to setup Trema
-        %li How to develop in Trema
-
-
-    .slide
-      %h1 Setup Trma
-      %pre.brush:.bash
+      %h1 セットアップしてみよう!
+      %pre.brush:.plain
         :preserve
-          $ git clone git://github.com/trema/trema
+          $ git clone git://github.com/trema/trema.git
           $ ./trema/build.rb
-          (There is no Step Three!!)
+      %p たったこれだけ!
+
+
+    .slide
+      %h1 コントローラを書いてみよう!
+      %p コントローラはクラスとして定義し、Controller クラスを継承
+      %pre.brush:.ruby
+        :preserve
+          # simple-controller.rb
+
+          class SimpleController < Controller
+          end
+      %br
+
+      %p trema run コマンドで起動
+      %pre.brush:.plain
+        :preserve
+          % ./trema run ./simple-controller.rb
 
 
     .slide
@@ -220,16 +304,19 @@
 
       %ul
         %li
-          Open hello.rb with your favorite editor and let's
+          Open a file with your favorite editor and let's
           %b shyakyo
           the following code.
         %li Shyakyo = The Japanese form of sutra transcription
-        %li Just type it as is ... don't think, be calm like a Zen monk. The details are explained later.
+        %li Just type it as is ... don't think at first, be calm like a Zen monk.
 
       %span.right
-        %small This image was taken from http://bit.ly/tI6OXP
+        %small The image was taken from http://bit.ly/tI6OXP
 
-      %pre.brush:.ruby
+
+    .slide
+      %h1 Syakyo: Hello Trema!
+      %pre{:class => "brush: ruby; highlight: [3]"}
         :preserve
           # hello.rb
           class HelloController < Controller
@@ -237,6 +324,7 @@
               puts "Hello, Trema!"
             end
           end
+      %p The start method is a start hook invoked at startup.
 
 
     .slide
@@ -261,30 +349,39 @@
 
 
     .slide
-      %h1 まとめ: Hello, Trema
-      %pre.brush:.ruby
-        :preserve
-          class HelloController < Controller
-            def start
-              puts "Hello, Trema!"
-            end
-          end
-
+      %h1 Coding Challenge #2: Switch Monitor
       %ul
-        %li Defines a class named HelloController
-        %li It is derived from Controller super-class
-        %li HelloController has a method named start
-        %li It outputs a String "Hello, Trema!" to the stdout.
-        %li The start method is a start hook and is invoked at startup.
+        %li スイッチ一覧をリアルタイムに更新
+        %li スイッチが起動したらメッセージを表示
+        %li スイッチが切断したらメッセージを表示
 
 
     .slide
-      %h1 Coding Challenge #2: Switch Monitor
-      %ul
-        %li ネットワーク上の OpenFlow スイッチをリアルタイム更新するアプリ
-        %li echo メッセージでスイッチの生死を確認
-        %li switch_ready ハンドラでスイッチの起動を捕捉
-        %li switch_disconnected ハンドラでスイッチの停止を捕捉
+      %h1 問題: Switch Monitor
+      %p 次の 3 箇所の下線部を埋めよ
+      %pre.brush:.ruby
+        :preserve
+          class SwitchMonitor < Controller
+            # 10 秒ごとに指定したメソッドを実行
+            periodic_timer_event :______________, 10
+
+            # スイッチが接続したときのハンドラ (引数 = スイッチの dpid)
+            def ____________ datapath_id
+              # ...
+            end
+
+            # スイッチが切断したときのハンドラ (引数 = スイッチの dpid)
+            def ___________________ datapath_id
+              # ...
+            end
+
+            private
+
+            # スイッチの一覧を表示
+            def show_switches
+              # ...
+            end
+          end
 
 
     .slide
@@ -328,83 +425,16 @@
 
 
     .slide
-      %h1 問題: Switch Monitor
-      %p 次の 3 箇所の下線部を埋めよ
-      %pre.brush:.ruby
-        :preserve
-          class SwitchMonitor < Controller
-            # 10 秒ごとに指定したメソッドを実行
-            periodic_timer_event :______________, 10
-
-            # スイッチが接続したときのハンドラ (引数 = スイッチの dpid)
-            def ____________ datapath_id
-              # ...
-            end
-
-            # スイッチが切断したときのハンドラ (引数 = スイッチの dpid)
-            def ___________________ datapath_id
-              # ...
-            end
-
-            private
-
-            # スイッチの一覧を表示
-            def show_switches
-              # ...
-            end
-          end
-
-
-    .slide
-      %h1 回答: Switch Monitor
-      %pre.brush:.ruby
-        :preserve
-          class SwitchMonitor < Controller
-            # 10 秒ごとに指定したメソッドを実行
-            periodic_timer_event :show_switches, 10
-
-            # スイッチが接続したときのハンドラ (引数 = スイッチの dpid)
-            def switch_ready datapath_id
-              # ...
-            end
-
-            # スイッチが切断したときのハンドラ (引数 = スイッチの dpid)
-            def switch_disconnected datapath_id
-              # ...
-            end
-
-            private
-
-            # スイッチの一覧を表示
-            def show_switches
-              # ...
-            end
-          end
-
-
-    .slide
-      %h1 ほかにどんなイベントが？
-      %ul
-        %li features_reply
-        %li packet_in
-        %li flow_removed
-        %li port_status
-        %li stats_reply
-        %li openflow_error
-        %li get_config_reply
-        %li barrier_reply
-        %li vendor
-        %li queue_get_config_reply
-        %li list_switches_reply
-
-
-    .slide
-      %h1 次の仕様の switch_ready ハンドラを実装せよ
+      %h1 switch_ready ハンドラの実装
       %ul
         %li スイッチが接続すると、dpid の 16 進数表記を @switches に追加する
         %li "Switch 0xabc is UP" のように表示
         %li ヒント: number.to_hex で number を 16 進数表記に変換
-      %pre.brush:.ruby
+
+
+    .slide
+      %h1 問題
+      %pre{:class => "brush: ruby; highlight: [9,10,11,12,13]"}
         :preserve
           class SwitchMonitor < Controller
             periodic_timer_event :show_switches, 10
@@ -424,17 +454,16 @@
 
 
     .slide
-      %h1 次の仕様の switch_disconnected ハンドラを実装せよ
+      %h1 switch_disconnected ハンドラの実装
       %ul
         %li スイッチが切断すると、dpid の 16 進数表記を @switches からはずす
         %li "Switch 0xabc is DOWN" のように表示
-      %pre.brush:.ruby
+      %pre{:class => "brush: ruby; highlight: [6,7,8,9,10]"}
         :preserve
           class SwitchMonitor < Controller
             periodic_timer_event :show_switches, 10
 
               ...
-
 
             # スイッチが切断したときのハンドラ (引数 = スイッチの dpid)
             def switch_disconnected datapath_id
@@ -446,38 +475,7 @@
 
 
     .slide
-      %h1 switch_connected が届くまで
-      %ul
-        %li 実は、OpenFlow には switch_connected イベントというものは無い
-        %li Trema がスイッチの接続と切断をイベントに変換
-        %li 裏では次の OpenFlow シーケンスが走る
-      %br
-      %br
-      %pre
-        :preserve
-          スイッチ                          コントローラ
-            |                                |
-            | secchan                        |
-            |------------------------------->|
-            |                                |
-            |                          HELLO |
-            |<-------------------------------|
-            | HELLO                          |
-            |------------------------------->|
-            |                                |
-            |               FEATURES REQUEST |
-            |<-------------------------------|
-            | FEATURES REPLY                 |
-            |------------------------------->|
-            |                                |
-            |                           Init |
-            |<-------------------------------|
-            |                                |
-            |                                | switch_ready
-
-
-    .slide
-      %h1 次の仕様の show_switches メソッドを実装せよ
+      %h1 show_switches メソッドの実装
       %ul
         %li スイッチの一覧を "All switches = 0xabc, 0xdef, ..." のように表示
       %pre.brush:.ruby
@@ -526,17 +524,6 @@
 
 
     .slide
-      %h1 仮想ネットワーク DSL
-
-      %p 仮想ネットワークにスイッチを追加
-      %pre.brush:.ruby
-        :preserve
-          # network.conf
-          vswitch { dpid 0xabc }  # 仮想スイッチその 1
-          vswitch { dpid 0xdef }  # 仮想スイッチその 2
-
-
-    .slide
       %h1 Switch Monitor の起動
 
       %pre.brush:.plain
@@ -579,6 +566,237 @@
       %ul
         %li イベントハンドラを書くことでコントローラのロジックを記述 (ex. switch_ready, switch_disconnected etc.)
         %li ネットワーク DSL を使えば OpenFlow スイッチを持っていなくても動作テストができる。
+
+
+    .slide
+      %h1 パケットを送ってみよう!
+      %ul
+        %li 仮想ホストを 2 台追加 (vhost)
+        %li それぞれスイッチにつなぐ (link)
+      %pre{:class => "brush: ruby; highlight: [5, 9, 14, 15]"}
+        :preserve
+          # 仮想スイッチ
+          vswitch { dpid 0xabc }
+
+          # 仮想ホストその 1
+          vhost("host1") {
+            mac "00:00:00:00:00:01"
+          }
+          # 仮想ホストその 2
+          vhost("host2") {
+            mac "00:00:00:00:00:02"
+          }
+
+          # スイッチとホストをつなげる
+          link "0xabc", "host1"
+          link "0xabc", "host2"
+
+
+    .slide
+      %h1 写経: パケットを送ってみよう!
+      %p pakcet_in に反応するハンドラを追加
+      %pre{:class => "brush: ruby; highlight: [7]"}
+        :preserve
+          class SimpleController < Controller
+            #
+            # packet_in のハンドラ
+            #   dpid: パケットを受け取ったスイッチの dpid
+            #   message: packet_in メッセージ本体
+            #
+            def packet_in dpid, message
+              puts "New packet_in message!"
+            end
+
+              ...
+          end
+
+
+    .slide
+      %h1 パケットを送ってみよう!
+      %ul
+        %li send_packets でテストパケットを送信
+        %li host1 → host2 にパケットを 10 個送信
+      %pre.brush:.plain
+        :preserve
+          % ./trema send_packets --source host1 --dest host2 --n_pkts 10 --pps 10
+          New packet_in message!
+          New packet_in message!
+          New packet_in message!
+          New packet_in message!
+          New packet_in message!
+          New packet_in message!
+          New packet_in message!
+          New packet_in message!
+          New packet_in message!
+          New packet_in message!
+      %p → packet_in ハンドラが 10 回呼ばれる
+
+
+    .slide
+      %h1 仮想ネットワーク DSL
+      %ul
+        %li 開発マシン上に好きなトポロジを構築してコントローラを実行できる
+        %li テストパケットを送受信してコントローラをデバッグできる
+        %li 使える部品は仮想スイッチ、仮想ホスト、仮想リンク
+
+
+    .slide
+      %h1 大規模で複雑なトポロジ
+      %p スイッチ 10 台のフルメッシュ接続をベタに書いた例 (約 80 行)
+      %pre.brush:.ruby
+        :preserve
+          vswitch { dpid "0x1" }
+          vswitch { dpid "0x2" }
+          vswitch { dpid "0x3" }
+          vswitch { dpid "0x4" }
+            ...
+
+          link "0x1", "0x2"
+          link "0x1", "0x3"
+          link "0x1", "0x4"
+          link "0x1", "0x5"
+          link "0x1", "0x6"
+          link "0x1", "0x7"
+          link "0x1", "0x8"
+          link "0x1", "0x9"
+          link "0x1", "0x10"
+          link "0x2", "0x3"
+          link "0x2", "0x4"
+            ...
+
+
+    .slide
+      %h1 Advanced DSL Usage
+      %ul
+        %li 実は DSL では Ruby の文法がそのまま使える (言語内 DSL)
+        %li スイッチ 10 台フルメッシュを 2 重ループで簡潔に書くと次の通り:
+      %pre.brush:.ruby
+        :preserve
+          $nswitch = 10
+
+          1.upto( $nswitch ).each do | sw1 |
+            vswitch { dpid sw1.to_hex }
+
+            1.upto( $nswitch ).each do | sw2 |
+              link sw1.to_hex, sw2.to_hex if sw1 < sw2
+            end
+          end
+      %p 短くなった!
+
+
+    .slide
+      %h1 フローテーブルを書き換えてみよう
+      %p パケットを隣りのスイッチポートに転送するフローエントリを書く
+      %pre{:class => "brush: ruby; highlight: [3]"}
+        :preserve
+          class SimpleController < Controller
+            def packet_in dpid, message
+              send_flow_mod_add(
+                dpid,
+                :match => ExactMatch.from( message ),
+                :buffer_id => message.buffer_id,
+                :actions => ActionOutput.new( message.in_port + 1 )
+              )
+            end
+          end
+      %p とても短い
+
+
+    .slide
+      %h1 flow_mod API の比較
+
+      %p Trema
+      %pre.brush:.ruby
+        :preserve
+          send_flow_mod_add(
+            dpid,
+            :match => ExactMatch.from( message ),
+            :buffer_id => message.buffer_id,
+            :actions => ActionOutput.new( message.in_port + 1 )
+          )
+
+      %p NOX
+      %pre.brush:.python
+        :preserve
+          inst.install_datapath_flow(
+            dpid,
+            extract_flow(packet),
+            CACHE_TIMEOUT, 
+            openflow.OFP_FLOW_PERMANENT,
+            [[openflow.OFPAT_OUTPUT, [0, prt[0]]]],
+            bufid,
+            openflow.OFP_DEFAULT_PRIORITY,
+            inport,
+            buf
+          )
+
+
+    .slide
+      %h1 気の効いた API
+
+      %p Exact match が簡単に作れる:
+
+      %pre{:class => "brush: ruby; highlight: [3]"}
+        :preserve
+          send_flow_mod_add(
+            dpid,
+            :match => ExactMatch.from( message ),
+            :buffer_id => message.buffer_id,
+            :actions => ActionOutput.new( message.in_port + 1 )
+          )
+
+      %p まじめに書くとこう:
+
+      %pre.brush:.ruby
+        :preserve
+          :match => Match.new(
+            :in_port = message.in_port,
+            :nw_src => message.nw_src,
+            :nw_dst => message.nw_dst,
+            :tp_src => message.tp_src,
+            :tp_dst => message.tp_dst,
+            :dl_src => message.dl_src,
+            :dl_dst => message.dl_dst,
+              ...
+          )
+
+
+    .slide
+      %h1 ベンチマーク (cbench) を実行
+      %p cbench: 一秒あたりの flow_mod 数を計測するベンチマーク
+      %pre.brush:.plain
+        :preserve
+          1   switches: fmods/sec:  10627   total = 10.626989 per ms 
+          1   switches: fmods/sec:  8184   total = 8.183992 per ms 
+          1   switches: fmods/sec:  7542   total = 7.541992 per ms 
+          1   switches: fmods/sec:  7852   total = 7.851992 per ms 
+          1   switches: fmods/sec:  8243   total = 8.242992 per ms 
+          1   switches: fmods/sec:  7807   total = 7.806977 per ms 
+          1   switches: fmods/sec:  8484   total = 8.483992 per ms 
+          1   switches: fmods/sec:  8401   total = 8.400992 per ms 
+          1   switches: fmods/sec:  8129   total = 8.128992 per ms 
+          1   switches: fmods/sec:  7853   total = 7.852788 per ms 
+          RESULT: 1 switches 9 tests min/max/avg/stdev = 7541.99/8483.99/8054.97/292.12 responses/s
+      %p 約 8,000 フローセットアップ/秒
+
+
+    .slide
+      %h1 参考: C で書いた場合
+      %p 約 14,000 フローセットアップ/秒
+      %pre.brush:.plain
+        :preserve
+          1   switches: fmods/sec:  8891   total = 8.890991 per ms 
+          1   switches: fmods/sec:  14864   total = 14.863985 per ms 
+          1   switches: fmods/sec:  14316   total = 14.315986 per ms 
+          1   switches: fmods/sec:  14548   total = 14.547985 per ms 
+          1   switches: fmods/sec:  14648   total = 14.647956 per ms 
+          1   switches: fmods/sec:  13318   total = 13.317987 per ms 
+          1   switches: fmods/sec:  14376   total = 14.375986 per ms 
+          1   switches: fmods/sec:  13143   total = 13.142987 per ms 
+          1   switches: fmods/sec:  14275   total = 14.274986 per ms 
+          1   switches: fmods/sec:  14280   total = 14.279986 per ms 
+          RESULT: 1 switches 9 tests min/max/avg/stdev = 13142.99/14863.99/14196.43/549.16 responses/s
+      %p 最初は Ruby でサッと書いて、必要に応じて C で書き直すのがおすすめ
 
 
     .slide
@@ -994,6 +1212,96 @@
     .slide
       %h1 TrafficMonitor の動かしかた
       %p TODO
+
+
+    .slide
+      %h1 サンプルアプリの紹介
+      %ul
+        %li Trema には大小さまざまなサンプルアプリが付属 (Ruby, C 両方)
+        %li ひととおり動かしてソースを読むことをおすすめします
+      %pre.brush:.plain
+        :preserve
+          % ls src/examples
+          cbench_switch          dumper            hash_bench
+          hello_trema            learning_switch   list_switches
+          multi_learning_switch  openflow_message  packet_in
+          repeater_hub           switch_info       switch_monitor
+          traffic_monitor
+
+
+    .slide
+      %h1 trema/apps
+      %p
+        %a{:href => "https://github.com/trema/apps"}https://github.com/trema/apps
+      %p Trema で書かれた「マジなアプリ」集
+      %ul
+        %li ルーティングスイッチ
+        %li ロードバランサ
+        %li トポロジマネージャ などなど...
+
+
+    .slide
+      %h1 ユニットテスト
+      %ul
+        %li ホスト間でのパケットの送受信数、スイッチのフローテーブルの中身などを RSpec でユニットテスト可能
+        %li 来月の Software Design 連載で詳しく紹介します!
+
+
+    .slide
+      %h1 ユニットテストの例
+      %pre.brush:.ruby
+        :preserve
+          describe RepeaterHub do
+            around do | example |
+              network {  # ネットワークの定義
+                vswitch("switch") { datapath_id "0xabc" }
+                vhost("host1") { promisc "on" }
+                vhost("host2") { promisc "on" }
+                link "switch", "host1"
+                link "switch", "host2"
+              }.run( RepeaterHub ) {
+                example.run
+              }
+            end
+
+            context "when host1 sends one packet to host2" do
+              describe "switch" do
+                before { send_packets "host1", "host2" }
+                subject { switch( "switch" ) }
+                it { should have( 1 ).flows }
+                its( "flows.first.actions" ) { should == "FLOOD" }
+              end
+
+                ...
+
+
+    .slide
+      %h1 まとめ
+      %p
+        %span{:style => "background-color: #ffff00"} OpenFlow フレームワーク Trema
+      %ul
+        %li OpenFlow のコントローラを短く書けて、すぐ動かせる
+        %li コミッタやバグレポート募集中!
+        %li
+          Software Design で好評連載中!
+          %br
+          (公式ハッシュタグ
+          %a{:href => "http://twitter.com/#!/search/#友太郎"} #友太郎
+          )
+
+
+    .slide
+      %h1 情報源
+      %ul
+        %li
+          Trema ホームページ:
+          %a{:href => "http://trema.github.com/trema/"} http://trema.github.com/trema/
+        %li
+          Ruby API ドキュメント:
+          %a{:href => "http://rubydoc.info/github/trema/trema/"} http://rubydoc.info/github/trema/trema/
+        %li
+          Twitter アカウント:
+          %a{:href => "http://twitter.com/trema_news"} @trema_news
 
 
     .layout{"data-name" => "default"}
