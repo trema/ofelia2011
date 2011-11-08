@@ -90,6 +90,14 @@
 
 
     .slide
+      %h1 Agenda
+      %ul
+        %li Introduction and design condept
+        %li Hands-on coding
+        %li Summary
+
+
+    .slide
       %h1 We are...
       %p Trema team from NEC laboratories
       %ul
@@ -101,7 +109,7 @@
     .slide
       %h1 Q: Why Framework?
       %p
-        %b A: High productivity (e.g., Rails, Sinatra)
+        %b A: High productivity (e.g., Rails)
       %ul
         %li "common operations" can be written in short
         %li Full-stack: develop with your laptop
@@ -333,8 +341,7 @@
 
 
     .slide
-      %h1 Ruby in one minute
-      %h2 Class definition
+      %h1 Class in Ruby
       %pre.brush:.ruby
         :preserve
           class ClassName < SuperClassName
@@ -627,8 +634,8 @@
 
 
     .slide
-      %h1 大規模で複雑なトポロジ
-      %p スイッチ 10 台のフルメッシュ接続をベタに書いた例 (約 80 行)
+      %h1 Large-scale and complex topology
+      %p Ten switches full-mesh topology configurations in flat (about 80 LOC)
       %pre.brush:.ruby
         :preserve
           vswitch { dpid "0x1" }
@@ -654,8 +661,8 @@
     .slide
       %h1 Advanced DSL Usage
       %ul
-        %li 実は DSL では Ruby の文法がそのまま使える (言語内 DSL)
-        %li スイッチ 10 台フルメッシュを 2 重ループで簡潔に書くと次の通り:
+        %li You can use full Ruby syntax in the DSL
+        %li the full-mesh topology can be rewritten briefly with nested loops:
       %pre.brush:.ruby
         :preserve
           $nswitch = 10
@@ -667,15 +674,15 @@
               link sw1.to_hex, sw2.to_hex if sw1 < sw2
             end
           end
-      %p 短くなった!
+      %p Very concise!
 
 
     .slide
-      %h1 フローテーブルを書き換えてみよう
-      %p パケットを隣りのスイッチポートに転送するフローエントリを書く
-      %pre{:class => "brush: ruby; highlight: [3]"}
+      %h1 Syakyo #5: Modifying flow-table
+      %p Write a flow-entry that forwards incoming packets to the next switch port
+      %pre{:class => "brush: ruby; highlight: [3,4,5,6,7,8]"}
         :preserve
-          class SimpleController < Controller
+          class CbenchSwitch < Controller
             def packet_in dpid, message
               send_flow_mod_add(
                 dpid,
@@ -685,11 +692,11 @@
               )
             end
           end
-      %p とても短い
+      %p Very concise!
 
 
     .slide
-      %h1 flow_mod API の比較
+      %h1 Comparison of flow_mod APIs
 
       %p Trema
       %pre.brush:.ruby
@@ -718,9 +725,9 @@
 
 
     .slide
-      %h1 気の効いた API
+      %h1 Nifty API for Match Structure
 
-      %p Exact match が簡単に作れる:
+      %p You can easily create an exact match from incoming packet_in message:
 
       %pre{:class => "brush: ruby; highlight: [3]"}
         :preserve
@@ -731,7 +738,7 @@
             :actions => ActionOutput.new( message.in_port + 1 )
           )
 
-      %p まじめに書くとこう:
+      %p This is equivalent with:
 
       %pre.brush:.ruby
         :preserve
@@ -742,14 +749,13 @@
             :tp_src => message.tp_src,
             :tp_dst => message.tp_dst,
             :dl_src => message.dl_src,
-            :dl_dst => message.dl_dst,
               ...
           )
 
 
     .slide
-      %h1 ベンチマーク (cbench) を実行
-      %p cbench: 一秒あたりの flow_mod 数を計測するベンチマーク
+      %h1 Run cbench benchmarks
+      %p cbench = A controller benchmark that measures flow-setup/sec
       %pre.brush:.plain
         :preserve
           1   switches: fmods/sec:  10627   total = 10.626989 per ms 
@@ -763,12 +769,12 @@
           1   switches: fmods/sec:  8129   total = 8.128992 per ms 
           1   switches: fmods/sec:  7853   total = 7.852788 per ms 
           RESULT: 1 switches 9 tests min/max/avg/stdev = 7541.99/8483.99/8054.97/292.12 responses/s
-      %p 約 8,000 フローセットアップ/秒
+      %p About 8,000 flow-setup/sec
 
 
     .slide
-      %h1 参考: C で書いた場合
-      %p 約 14,000 フローセットアップ/秒
+      %h1 cbench with C version controller
+      %p About 14,000 flow-setup/sec
       %pre.brush:.plain
         :preserve
           1   switches: fmods/sec:  8891   total = 8.890991 per ms 
@@ -782,15 +788,27 @@
           1   switches: fmods/sec:  14275   total = 14.274986 per ms 
           1   switches: fmods/sec:  14280   total = 14.279986 per ms 
           RESULT: 1 switches 9 tests min/max/avg/stdev = 13142.99/14863.99/14196.43/549.16 responses/s
-      %p 最初は Ruby でサッと書いて、必要に応じて C で書き直すのがおすすめ
+      %p We recommend to write a controller in Ruby at first, then rewrite them with C if need be
 
 
     .slide
-      %h1 Coding Challenge #3: Traffic Monitor
+      %h1 Traffic Monitor
+      %ul
+        %li A L2 switch
+        %li Counts the number of packets sent by each user
+        %li Each user is identified by its MAC address
 
 
     .slide
-      %h1 FDB Class
+      %h1 Traffic Monitor classes
+      %ul
+        %li FDB class for learning MAC <=> switch-port pair
+        %li Counter class that keeps number of packets sent by each user
+        %li TrafficMonitor class that acts as a Controller
+
+
+    .slide
+      %h1 Syakyo #6: FDB Class
       %pre.brush:.ruby
         :preserve
           class FDB
@@ -820,30 +838,55 @@
       %h1 FDB Class
       %pre.brush:.ruby
         :preserve
-          irb(main):001:0> require "fdb"
+          % irb
+          > require "fdb"
           => true
 
-          irb(main):002:0> fdb = FDB.new
+          > fdb = FDB.new
           => #&lt;FDB:0xb73591e0 @db={}>
 
-          irb(main):003:0> fdb.lookup "00:00:00:00:00:01"
+          > fdb.lookup "00:00:00:00:00:01"
           => nil
 
-          irb(main):004:0> fdb.learn "00:00:00:00:00:01", 1
+          > fdb.learn "00:00:00:00:00:01", 1
           => {:mac=>"00:00:00:00:00:01", :port_number=>1}
 
-          irb(main):005:0> fdb.lookup "00:00:00:00:00:01"
+          > fdb.lookup "00:00:00:00:00:01"
           => 1
 
-          irb(main):006:0> fdb.learn "00:00:00:00:00:02", 2
+          > fdb.learn "00:00:00:00:00:02", 2
           => {:mac=>"00:00:00:00:00:02", :port_number=>2}
 
-          irb(main):007:0> fdb.lookup "00:00:00:00:00:02"
+          > fdb.lookup "00:00:00:00:00:02"
           => 2
 
 
     .slide
-      %h1 Counter クラス
+      %h1 Hash in Ruby
+      %pre.brush:.ruby
+        :preserve
+          % irb
+          > price = { "Mac" => 1000, "iPhone" => 500, "iPad" => 600 }
+          => { "Mac" => 1000, "iPhone" => 500, "iPad" => 600 }
+
+          > price[ "iPhone" ]
+          => 500
+
+          > price[ "iPad" ]
+          => 600
+
+          > price[ "iPod Touch" ]
+          => nil
+
+          > price[ "iPod Touch" ] = 300
+          => 300
+
+          > price[ "iPod Touch" ]
+          => 300
+
+
+    .slide
+      %h1 Syakyo #7: Counter Class
       %pre.brush:.ruby
         :preserve
           class Counter
@@ -864,159 +907,115 @@
 
 
     .slide
-      %h1 Counter クラス
+      %h1 Counter Class
       %pre.brush:.ruby
         :preserve
-          irb(main):001:0> require "counter"
+          % irb
+          > require "counter"
           => true
 
-          irb(main):002:0> counter = Counter.new
+          > counter = Counter.new
           => #<Counter:0xb7366d2c @db={}>
 
-          irb(main):003:0> counter.add "00:00:00:00:00:01", 1, 100
+          > counter.add "00:00:00:00:00:01", 1, 100
           => 100
 
-          irb(main):004:0> counter.add "00:00:00:00:00:02", 1, 100
+          > counter.add "00:00:00:00:00:02", 1, 100
           => 100
 
-          irb(main):005:0> counter.add "00:00:00:00:00:02", 1, 100
+          > counter.add "00:00:00:00:00:02", 1, 100
           => 200
 
-          irb(main):006:0> counter.each_pair do | mac, counter |
-          irb(main):007:1*   p counter
-          irb(main):008:1> end
+          > counter.each_pair do | mac, counter |
+          *   p counter
+          > end
           {:packet_count=>1, :byte_count=>100}
           {:packet_count=>2, :byte_count=>200}
           => {"00:00:00:00:00:01"=>{:packet_count=>1, :byte_count=>100}, "00:00:00:00:00:02"=>{:packet_count=>2, :byte_count=>200}}
 
 
     .slide
-      %h1 TrafficMonitor クラス
-      %pre.brush:.ruby
-        :preserve
-          require "counter"
-          require "fdb"
+      %h1 TrafficMonitor Class Overview
+      %p TrafficMonitor has the following two handlers
+      %ul
+        %li packet_in: L2 switching. When a packet_in comes, learn MAC <=> switch-port pair and send flow_mod to a switch
+        %li flow_removed: counts the number of packets and bytes from a user. This information is piggy-backed with flow_removed messages
 
+
+    .slide
+      %h1 Syakyo #8: TrafficMonitor#packet_in
+      %pre{:class => "brush: ruby; highlight: [16,17,19]"}
+        :preserve
           class TrafficMonitor < Controller
             periodic_timer_event :show_counter, 10
 
             def start
-              # カウンタと FDB を初期化
-            end
-
-            def packet_in datapath_id, message
-              # L2 スイッチング処理
-            end
-
-            def flow_removed datapath_id, message
-              # カウンタにパケット数とバイト数を加算
-            end
-
-            private
-              ...
-
-
-    .slide
-      %h1 TrafficMonitor クラス
-      %p TODO: 動かせるとこでは動かしとく
-
-
-    .slide
-      %h1 問題: TrafficMonitor#start
-      %pre.brush:.ruby
-        :preserve
-          class TrafficMonitor < Controller
-            ...
-
-            # カウンタと FDB を初期化
-            def start
-              @counter = __________
-              @fdb = _______
-            end
-
-
-    .slide
-      %h1 答え: TrafficMonitor#start
-      %pre.brush:.ruby
-        :preserve
-          class TrafficMonitor < Controller
-            ...
-
-            # カウンタと FDB を初期化
-            def start
               @counter = Counter.new
               @fdb = FDB.new
             end
-
-
-    .slide
-      %h1 TrafficMonitor#packet_in
-      %p L2 スイッチングをする
-      %p TODO: シーケンス図で説明
-
-
-    .slide
-      %h1 問題: TrafficMonitor#packet_in
-      %pre.brush:.ruby
-        :preserve
-          class TrafficMonitor < Controller
-            ...
-
-            def packet_in datapath_id, message
-              macsa = message.macsa
-              macda = message.macda
-
-              @fdb.learn _____, message.in_port
-              @counter.add macsa, 1, message.total_len
-              out_port = @fdb.lookup( _____ )
-              if out_port
-                packet_out datapath_id, message, out_port
-                flow_mod datapath_id, macsa, macda, out_port
-              else
-                flood datapath_id, message
-              end
-
-
-    .slide
-      %h1 答え: TrafficMonitor#packet_in
-      %pre.brush:.ruby
-        :preserve
-          class TrafficMonitor < Controller
-            ...
 
             def packet_in datapath_id, message
               macsa = message.macsa
               macda = message.macda
 
               @fdb.learn macsa, message.in_port
-              @counter.add macsa, 1, message.total_len
               out_port = @fdb.lookup( macda )
               if out_port
-                packet_out datapath_id, message, out_port
                 flow_mod datapath_id, macsa, macda, out_port
+                packet_out datapath_id, message, out_port
               else
                 flood datapath_id, message
               end
+            end
+              ...
 
 
     .slide
-      %h1 問題: TrafficMonitor#flow_removed
-      %pre.brush:.ruby
+      %h1 Syakyo #9: TrafficMonitor#flow_mod
+      %pre{:class => "brush: ruby; highlight: [7]"}
         :preserve
-          class TrafficMonitor < Controller
-            ...
+            private
+              ...
+            def flow_mod datapath_id, macsa, macda, out_port
+              send_flow_mod_add(
+                datapath_id,
+                :send_flow_rem => true,
+                :hard_timeout => 10,
+                :match => Match.new(
+                  :dl_src => macsa.to_s,
+                  :dl_dst => macda.to_s
+                ),
+                :actions => Trema::ActionOutput.new( out_port )
+              )
+            end
+      %p :hard_timeout forces flow-entries to be removed in ten seconds and therefore causes flow_removed
 
-          def flow_removed datapath_id, message
-            @counter.add(
-              message.match.dl_src,
-              message.____________,
-              message.__________
-            )
+
+    .slide
+      %h1 Syakyo #10: TrafficMonitor#packet_out and flood
+      %pre{:class => "brush: ruby; highlight: [9]"}
+        :preserve
+
+          class TrafficMonitor < Controller
+              ...
+            private
+              ...
+            def packet_out datapath_id, message, out_port
+              send_packet_out(
+                datapath_id,
+                :packet_in => message,
+                :actions => Trema::ActionOutput.new( out_port )
+              )
+            end
+
+            def flood datapath_id, message
+              packet_out datapath_id, message, OFPP_FLOOD
+            end
           end
 
 
     .slide
-      %h1 答え: TrafficMonitor#flow_removed
+      %h1 Syakyo #11: TrafficMonitor#flow_removed
       %pre.brush:.ruby
         :preserve
           class TrafficMonitor < Controller
@@ -1032,179 +1031,51 @@
 
 
     .slide
-      %h1 問題: TrafficMonitor#flow_mod
+      %h1 Run Traffic Monitor
+      %p DSL
       %pre.brush:.ruby
         :preserve
-          class TrafficMonitor < Controller
-              ...
+          vswitch { dpid 0xabc }
 
-            private
-              ...
+          # Add two virtual hosts
+          vhost("host1") {
+            mac "00:00:00:00:00:01"
+          }
+          vhost("host2") {
+            mac "00:00:00:00:00:02"
+          }
 
-            def flow_mod datapath_id, macsa, macda, out_port
-              send_flow_mod_add(
-                datapath_id,
-                :hard_timeout => 10,
-                :match => Match.new(:dl_src => _____, :dl_dst => _____),
-                :actions => Trema::ActionOutput.new( ________ )
-              )
-            end
+          # connect hosts to a switch
+          link "0xabc", "host1"
+          link "0xabc", "host2"
 
-
-    .slide
-      %h1 答え: TrafficMonitor#flow_mod
+      %p Run
       %pre.brush:.ruby
         :preserve
-          class TrafficMonitor < Controller
-              ...
-
-            private
-              ...
-
-            def flow_mod datapath_id, macsa, macda, out_port
-              send_flow_mod_add(
-                datapath_id,
-                :hard_timeout => 10,
-                :match => Match.new(:dl_src => macsa, :dl_dst => macda),
-                :actions => Trema::ActionOutput.new( out_port )
-              )
-            end
+          % ./trema run ./traffic-monitor.rb -c ./traffic-monitor.conf
 
 
     .slide
-      %h1 send_flow_mod_add()
-      %pre.brush:.ruby
+      %h1 Let's Send Packets!
+      %p Open a new terminal and send packets betweeen host1 and host2:
+      %pre.brush:.bash
         :preserve
-          send_flow_mod_add(
-            dpid,
-            :match => ExactMatch.from( message ),
-            :buffer_id => message.buffer_id,
-            actions => ActionOutput.new( message.in_port + 1 )
-          )
-
-      %p vs.
-
-      %pre.brush:.c
+          % ./trema send_packets --source host1 --dest host2 --n_pkts 10 --pps 10
+          % ./trema send_packets --source host2 --dest host1 --n_pkts 10 --pps 10
+      %p Then the trema run terminal will look like:
+      %pre.brush:.bash
         :preserve
-          // C で同じ処理をした場合
-          buffer *flow_mod = create_flow_mod(
-            get_transaction_id(),
-            match,
-            get_cookie(),
-            OFPFC_ADD,
-            0,
-            0,
-            UINT16_MAX,
-            message.buffer_id,
-            OFPP_NONE,
-            0,
-            actions
-          );
-          send_openflow_message( datapath_id, flow_mod );
+            ...
+          00:00:00:00:00:01 10 packets (640 bytes)
+          00:00:00:00:00:02 10 packets (640 bytes)
+            ...
 
 
     .slide
-      %h1 問題: TrafficMonitor#packet_out
-      %pre.brush:.ruby
-        :preserve
-
-          class TrafficMonitor < Controller
-              ...
-
-            private
-              ...
-
-            def packet_out datapath_id, message, out_port
-              send_packet_out(
-                datapath_id,
-                :data => message.____,
-                :actions => Trema::ActionOutput.new( _______ )
-              )
-            end
-
-
-    .slide
-      %h1 答え: TrafficMonitor#packet_out
-      %pre.brush:.ruby
-        :preserve
-
-          class TrafficMonitor < Controller
-              ...
-
-            private
-              ...
-
-            def packet_out datapath_id, message, out_port
-              send_packet_out(
-                datapath_id,
-                :data => message.data,
-                :actions => Trema::ActionOutput.new( out_port )
-              )
-            end
-
-
-    .slide
-      %p TODO: C で packet_out やる場合と比較
-
-
-    .slide
-      %h1 問題: TrafficMonitor#flood
-      %pre.brush:.ruby
-        :preserve
-
-          class TrafficMonitor < Controller
-              ...
-
-            private
-              ...
-
-            def packet_out datapath_id, message, out_port
-              send_packet_out(
-                datapath_id,
-                :data => message.data,
-                :actions => Trema::ActionOutput.new( out_port )
-              )
-            end
-
-            def flood datapath_id, message
-              packet_out datapath_id, message, __________
-            end
-
-
-    .slide
-      %h1 答え: TrafficMonitor#flood
-      %pre.brush:.ruby
-        :preserve
-
-          class TrafficMonitor < Controller
-              ...
-
-            private
-              ...
-
-            def packet_out datapath_id, message, out_port
-              send_packet_out(
-                datapath_id,
-                :data => message.data,
-                :actions => Trema::ActionOutput.new( out_port )
-              )
-            end
-
-            def flood datapath_id, message
-              packet_out datapath_id, message, OFPP_FLOOD
-            end
-
-
-    .slide
-      %h1 TrafficMonitor の動かしかた
-      %p TODO
-
-
-    .slide
-      %h1 サンプルアプリの紹介
+      %h1 Trema Sample Apps
       %ul
-        %li Trema には大小さまざまなサンプルアプリが付属 (Ruby, C 両方)
-        %li ひととおり動かしてソースを読むことをおすすめします
+        %li Trema distribution includes various samples (in Ruby and C)
+        %li We recommend to run them and read its source code
       %pre.brush:.plain
         :preserve
           % ls src/examples
@@ -1219,27 +1090,27 @@
       %h1 trema/apps
       %p
         %a{:href => "https://github.com/trema/apps"}https://github.com/trema/apps
-      %p Trema で書かれた「マジなアプリ」集
+      %p "Nearly production-level" apps written in Trema
       %ul
-        %li ルーティングスイッチ
-        %li ロードバランサ
-        %li トポロジマネージャ などなど...
+        %li routing switch
+        %li load balancer
+        %li topology manager etc. etc...
 
 
     .slide
-      %h1 ユニットテスト
+      %h1 Unit-Test
       %ul
-        %li ホスト間でのパケットの送受信数、スイッチのフローテーブルの中身などを RSpec でユニットテスト可能
-        %li 来月の Software Design 連載で詳しく紹介します!
+        %li You can write unit-tests of send/receive packets between hosts and flow-table entries of switches etc. with RSpec
+        %li The details can be found in spec/ directory
 
 
     .slide
-      %h1 ユニットテストの例
+      %h1 Unit-Test Example
       %pre.brush:.ruby
         :preserve
           describe RepeaterHub do
             around do | example |
-              network {  # ネットワークの定義
+              network {
                 vswitch("switch") { datapath_id "0xabc" }
                 vhost("host1") { promisc "on" }
                 vhost("host2") { promisc "on" }
@@ -1262,31 +1133,26 @@
 
 
     .slide
-      %h1 まとめ
+      %h1 Summary
       %p
-        %span{:style => "background-color: #ffff00"} OpenFlow フレームワーク Trema
+        %span{:style => "background-color: #ffff00"} OpenFlow frmework Trema
       %ul
-        %li OpenFlow のコントローラを短く書けて、すぐ動かせる
-        %li コミッタやバグレポート募集中!
-        %li
-          Software Design で好評連載中!
-          %br
-          (公式ハッシュタグ
-          %a{:href => "http://twitter.com/#!/search/#友太郎"} #友太郎
-          )
+        %li You can write controllers short and run it quickly
+        %li Many examples in src/examples and trema/apps repository
+        %li Pull-requests and bug-reports are welcome!
 
 
     .slide
-      %h1 情報源
+      %h1 Meta
       %ul
         %li
-          Trema ホームページ:
+          Trema HomePage
           %a{:href => "http://trema.github.com/trema/"} http://trema.github.com/trema/
         %li
-          Ruby API ドキュメント:
+          Ruby API Document:
           %a{:href => "http://rubydoc.info/github/trema/trema/"} http://rubydoc.info/github/trema/trema/
         %li
-          Twitter アカウント:
+          Twitter Account:
           %a{:href => "http://twitter.com/trema_news"} @trema_news
 
 
