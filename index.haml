@@ -103,7 +103,7 @@
       %p
         %b A: High productivity (e.g., Rails, Sinatra)
       %ul
-        %li "common operations" can be written shortly
+        %li "common operations" can be written in short
         %li Full-stack: develop with your laptop
         %li Tight loops of "coding, testing, and debugging"
       %br
@@ -133,7 +133,7 @@
     .slide
       %h1 Trema Design Concept
       .vcenter
-        %h1 "Write shortly, run it quickly"
+        %h1 "Write it short, run it quickly"
 
 
     .slide
@@ -141,13 +141,13 @@
       .vcenter
         %h1
           "
-          %span{:style => "background-color: #ffff00"}Write shortly,
+          %span{:style => "background-color: #ffff00"}Write it short,
           run it quickly"
 
 
     .slide
-      %h1 Why want to write shortly?
-      %p If you can write your code more shortly,
+      %h1 Why short code?
+      %p If you can keep your code short,
       %ul
         %li more quickly you can finish coding,
         %li less incidence of software bug,
@@ -173,7 +173,7 @@
             end
           end
       %p
-        Only need essential method invocations in this code.
+        Only needs essential methods in this code.
         %br
         (flow_mod then FLOOD)
 
@@ -187,7 +187,7 @@
 
     .slide
       %h1 NOX (Python binding)
-      %p Redundunt code!
+      %p Redundant code!
       %pre{:class => "brush: python; highlight: [2, 8, 17]"}
         :preserve
           class pyswitch(Component):
@@ -224,7 +224,7 @@
       %h1 Trema Design Concept
       .vcenter
         %h1
-          "Write shortly,
+          "Write it short,
           %span{:style => "background-color: #ffff00"} run it quickly
           "
 
@@ -232,8 +232,7 @@
     .slide
       %h1 Pain of OpenFlow development
       %p
-        %i "It is complicated to setup OpenFlow development environment"
-        %i (network configurations and VM installations etc.)
+        %i "It is complicated to setup OpenFlow development environment (network configurations and VM installations etc.)"
 
       %br
 
@@ -246,7 +245,7 @@
         %i "In the first place, I don't have a network usable for OpenFlow experiments."
 
       .right
-        %p anonymous programmer
+        %p Anonymous programmer
 
 
     .slide
@@ -278,30 +277,6 @@
 
 
     .slide
-      %h1 Write your first controller
-      %p Define a controller as a class and make it derived from Controller class
-      %pre.brush:.ruby
-        :preserve
-          # simple-controller.rb
-
-          class SimpleController < Controller
-          end
-      %br
-
-      %p Run it with "trema run" command:
-      %pre.brush:.plain
-        :preserve
-          % ./trema run ./simple-controller.rb
-
-
-    .slide
-      %h1 Coding Challenge #1: Hello Trema!
-      %ul
-        %li Trema の最初のプログラム
-        %li 画面に Hello Trema! と表示するだけ
-
-
-    .slide
       %h1 It's Shakyo Time!
 
       %span.right
@@ -313,15 +288,35 @@
           %b shyakyo
           the following code.
         %li Shyakyo = The Japanese form of sutra transcription
-        %li Just type it as is ... don't think at first, be calm like a Zen monk.
+        %li Just type it as is ... don't think at first, the details are described later.
 
       %span.right
         %small The image was taken from http://bit.ly/tI6OXP
 
 
     .slide
-      %h1 Syakyo: Hello Trema!
-      %pre{:class => "brush: ruby; highlight: [3]"}
+      %h1 Syakyo #1: Your first controller
+      %p Define a controller as a class and make it derived from Controller class
+      %pre.brush:.ruby
+        :preserve
+          # simple.rb
+
+          class SimpleController < Controller
+          end
+      %br
+
+      %p Run it with "trema run" command:
+      %pre.brush:.plain
+        :preserve
+          % ./trema run ./simple.rb
+
+
+    .slide
+      %h1 Syakyo #2: Hello Trema!
+      %ul
+        %li Add start method to the controller class.
+        %li The method is a hook method invoked at startup (initializer).
+      %pre{:class => "brush: ruby; highlight: [3,4,5]"}
         :preserve
           # hello.rb
           class HelloController < Controller
@@ -329,13 +324,9 @@
               puts "Hello, Trema!"
             end
           end
-      %p The start method is a start hook invoked at startup.
 
-
-    .slide
-      %h1 How to run
-      %p You can execute *.rb with the following command:
-      %pre.brush:.bash
+      %p Then you can run it with "trema run"
+      %pre{:class => "brush: ruby; highlight: [2]"}
         :preserve
           % ./trema run ./hello.rb
           Hello, Trema!
@@ -354,154 +345,47 @@
 
 
     .slide
-      %h1 Coding Challenge #2: Switch Monitor
+      %h1 Syakyo #3: Switch Monitor
+      %p Switch monitor controller spec:
       %ul
-        %li スイッチ一覧をリアルタイムに更新
-        %li スイッチが起動したらメッセージを表示
-        %li スイッチが切断したらメッセージを表示
+        %li Update the list of switches in real-time
+        %li Notifies when a new switch is UP
+        %li Notifies when a switch become DOWN
 
 
     .slide
-      %h1 問題: Switch Monitor
-      %p 次の 3 箇所の下線部を埋めよ
+      %h1 Syakyo #3: Switch Monitor
       %pre.brush:.ruby
         :preserve
-          class SwitchMonitor < Controller
-            # 10 秒ごとに指定したメソッドを実行
-            periodic_timer_event :______________, 10
-
-            # スイッチが接続したときのハンドラ (引数 = スイッチの dpid)
-            def ____________ datapath_id
-              # ...
-            end
-
-            # スイッチが切断したときのハンドラ (引数 = スイッチの dpid)
-            def ___________________ datapath_id
-              # ...
-            end
-
-            private
-
-            # スイッチの一覧を表示
-            def show_switches
-              # ...
-            end
-          end
-
-
-    .slide
-      %h1 Shyakyo: Variable and String in Ruby
-      %ul
-        %li irb = interactive ruby (REPL)
-        %li "irb(main):001:0>" is a irb prompt so you need not type it
-      %pre.brush:.ruby
-        :preserve
-          % irb
-          irb(main):001:0> name = "Spider-Man"
-          => "Spider-Man"
-
-          irb(main):002:0> puts "My name is \#{ name }"
-          My name is Spider-Man
-          => nil
-
-
-    .slide
-      %h1 Shyakyo: List in Ruby
-      %pre.brush:.ruby
-        :preserve
-          % irb
-          irb(main):001:0> zoo = []
-          => []
-
-          irb(main):002:0> zoo << "bat"
-          => ["bat"]
-
-          irb(main):003:0> zoo << "gnu"
-          => ["bat", "gnu"]
-
-          irb(main):004:0> zoo << "dog"
-          => ["bat", "gnu", "dog"]
-
-          irb(main):005:0> zoo -= ["bat"]
-          => ["gnu", "dog"]
-
-          irb(main):006:0> zoo.sort
-          => ["dog", "gnu"]
-
-
-    .slide
-      %h1 switch_ready ハンドラの実装
-      %ul
-        %li スイッチが接続すると、dpid の 16 進数表記を @switches に追加する
-        %li "Switch 0xabc is UP" のように表示
-        %li ヒント: number.to_hex で number を 16 進数表記に変換
-
-
-    .slide
-      %h1 問題
-      %pre{:class => "brush: ruby; highlight: [9,10,11,12,13]"}
-        :preserve
+          # src/examples/switch_monitor/switch-monitor.rb
           class SwitchMonitor < Controller
             periodic_timer_event :show_switches, 10
 
-            # 起動時にスイッチのリストを初期化
             def start
               @switches = []
             end
 
-            # スイッチが接続したときのハンドラ (引数 = スイッチの dpid)
             def switch_ready datapath_id
-              @switches << __________________
-              puts "_____________________________________"
+              @switches << datapath_id.to_hex
+              info "Switch \#{ datapath_id.to_hex } is UP"
             end
 
-              ...
-
-
-    .slide
-      %h1 switch_disconnected ハンドラの実装
-      %ul
-        %li スイッチが切断すると、dpid の 16 進数表記を @switches からはずす
-        %li "Switch 0xabc is DOWN" のように表示
-      %pre{:class => "brush: ruby; highlight: [6,7,8,9,10]"}
-        :preserve
-          class SwitchMonitor < Controller
-            periodic_timer_event :show_switches, 10
-
-              ...
-
-            # スイッチが切断したときのハンドラ (引数 = スイッチの dpid)
             def switch_disconnected datapath_id
-              @switches -= ______________________
-              puts "_______________________________________"
+              @switches -= [ datapath_id.to_hex ]
+              info "Switch \#{ datapath_id.to_hex } is DOWN"
             end
-
-              ...
-
-
-    .slide
-      %h1 show_switches メソッドの実装
-      %ul
-        %li スイッチの一覧を "All switches = 0xabc, 0xdef, ..." のように表示
-      %pre.brush:.ruby
-        :preserve
-          class SwitchMonitor < Controller
-            periodic_timer_event :show_switches, 10
-
-              ...
-
 
             private
 
             def show_switches
-              puts "All switches = " + @switches._________________
+              info "All switches = " + @switches.sort.join( ", " )
             end
           end
 
 
     .slide
-      %h1 解答: Switch Monitor
-      %pre.brush:.ruby
+      %h1 Event Handlers
+      %pre{:class => "brush: ruby; highlight: [9,14]"}
         :preserve
           class SwitchMonitor < Controller
             periodic_timer_event :show_switches, 10
@@ -512,25 +396,131 @@
 
             def switch_ready datapath_id
               @switches << datapath_id.to_hex
-              puts "Switch \#{ datapath_id.to_hex } is UP"
+              info "Switch \#{ datapath_id.to_hex } is UP"
             end
 
             def switch_disconnected datapath_id
               @switches -= [ datapath_id.to_hex ]
-              puts "Switch \#{ datapath_id.to_hex } is DOWN"
+              info "Switch \#{ datapath_id.to_hex } is DOWN"
             end
 
             private
 
             def show_switches
-              puts "All switches = " + @switches.sort.join( ", " )
+              info "All switches = " + @switches.sort.join( ", " )
             end
           end
 
 
     .slide
-      %h1 Switch Monitor の起動
+      %h1 switch_ready handler
+      %pre{:class => "brush: ruby; highlight: [8,9,10,11]"}
+        :preserve
+          class SwitchMonitor < Controller
+            periodic_timer_event :show_switches, 10
 
+            def start
+              @switches = []
+            end
+
+            def switch_ready datapath_id
+              @switches << datapath_id.to_hex
+              info "Switch \#{ datapath_id.to_hex } is UP"
+            end
+      %ul
+        %li When a switch is connected to the controller, add its dpid to the switch-list instance variable (@switches)
+        %li Output like "Switch 0xabc is UP"
+
+
+    .slide
+      %h1 List in Ruby
+      %pre.brush:.ruby
+        :preserve
+          % irb
+          > zoo = []
+          => []
+
+          > zoo << "bat"
+          => ["bat"]
+
+          > zoo << "gnu"
+          => ["bat", "gnu"]
+
+          > zoo << "dog"
+          => ["bat", "gnu", "dog"]
+
+          > zoo -= ["bat"]
+          => ["gnu", "dog"]
+
+          > zoo.sort
+          => ["dog", "gnu"]
+      %p irb = interactive ruby (REPL)
+
+
+    .slide
+      %h1 Variable and String in Ruby
+      %pre.brush:.ruby
+        :preserve
+          % irb
+          > name = "Spider-Man"
+          => "Spider-Man"
+
+          > puts "My name is \#{ name }"
+          My name is Spider-Man
+          => nil
+
+
+    .slide
+      %h1 switch_disconnected handler
+      %ul
+        %li When a switch become DOWN, remove its dpid from @switches list
+        %li Output like "Switch 0xabc is DOWN"
+      %pre{:class => "brush: ruby; highlight: [6,7,8,9]"}
+        :preserve
+          # src/examples/switch_monitor/switch-monitor.rb
+          class SwitchMonitor < Controller
+
+              ...
+
+            def switch_disconnected datapath_id
+              @switches -= [ datapath_id.to_hex ]
+              info "Switch \#{ datapath_id.to_hex } is DOWN"
+            end
+
+              ...
+
+
+
+    .slide
+      %h1 show_switches timer handler
+      %ul
+        %li Output the switch list like "All switches = 0xabc, 0xdef, ..." in every 10 seconds
+        %li periodic_timer_handler registers show_switches method as a timer handler
+      %pre{:class => "brush: ruby; highlight: [2,6,7,8]"} 
+        :preserve
+          class SwitchMonitor < Controller
+            periodic_timer_event :show_switches, 10
+
+              ...
+
+            def show_switches
+              info "All switches = " + @switches.sort.join( ", " )
+            end
+          end
+
+
+    .slide
+      %h1 Run Switch Monitor
+
+      %p Write a virtual network configuration (DSL) that adds three switches to the network.
+      %pre.brush:.ruby
+        :preserve
+          # switch-monitor.conf
+          vswitch { datapath_id 0x1 }
+          vswitch { datapath_id 0x2 }
+          vswitch { datapath_id 0x3 }
+
+      %p Then pass it to trema run with -c option
       %pre.brush:.plain
         :preserve
           % ./trema run ./switch-monitor.rb -c ./switch-monitor.conf
@@ -544,15 +534,23 @@
 
 
     .slide
-      %h1 スイッチをわざと落とす
+      %h1 Virtual Network DSL
+      %ul
+        %li You can build arbitrally network topology on your laptop and run your controlller on it.
+        %li Debug your controller by sending and receiving test packets between virtual hosts.
+        %li You can use virtual switch, host, and link to construct the virtual network.
 
-      %p 別ターミナルで trema kill を実行
+
+    .slide
+      %h1 Kill a Switch Intentionally
+
+      %p Open another terminal and run "trema kill"
       %pre.brush:.bash
         :preserve
           % ./trema kill 0x3
 
-      %p すると trema run を実行したターミナルで "Switch 0x??? is DOWN" が表示される
-      %pre.brush:.plain
+      %p Then you can see "Switch 0x??? is DOWN" on the "trema run" terminal
+      %pre{:class => "brush: ruby; highlight: [9]"} 
         :preserve
           % ./trema run ./switch-monitor.rb -c ./switch-monitor.conf
           Switch 0x3 is UP
@@ -562,65 +560,56 @@
           All switches = 0x1, 0x2, 0x3
           All switches = 0x1, 0x2, 0x3
             ...
-
           Switch 0x3 is DOWN
 
 
     .slide
-      %h1 まとめ: Switch Monitor
+      %h1 Summary: Switch Monitor
       %ul
-        %li イベントハンドラを書くことでコントローラのロジックを記述 (ex. switch_ready, switch_disconnected etc.)
-        %li ネットワーク DSL を使えば OpenFlow スイッチを持っていなくても動作テストができる。
+        %li Implement the logic of a controller by defining event handler methods (e.g., switch_ready, switch_disconnected etc.)
+        %li Network DSL makes it possible to test your own controller even if you don't have an OpenFlow switch.
 
 
     .slide
-      %h1 パケットを送ってみよう!
-      %ul
-        %li 仮想ホストを 2 台追加 (vhost)
-        %li それぞれスイッチにつなぐ (link)
-      %pre{:class => "brush: ruby; highlight: [5, 9, 14, 15]"}
+      %h1 Syakyo #4: packet-in handling
+      %p Add the following method to handle packet-in
+      %pre{:class => "brush: ruby; highlight: [2,3,4]"}
         :preserve
-          # 仮想スイッチ
+          class SimpleController < Controller
+            def packet_in dpid, message
+              puts "New packet_in message!"
+            end
+              ...
+      %ul
+        %li dpid: the datapath ID of the switch that received a packet-in
+        %li message: packet-in message object
+
+
+    .slide
+      %h1 Let's Send Packets!
+      %p Firstly, you must add virtual hosts to send/receive packets and connect them to a virtual switch:
+      %pre.brush:.ruby
+        :preserve
           vswitch { dpid 0xabc }
 
-          # 仮想ホストその 1
+          # Add two virtual hosts
           vhost("host1") {
             mac "00:00:00:00:00:01"
           }
-          # 仮想ホストその 2
           vhost("host2") {
             mac "00:00:00:00:00:02"
           }
 
-          # スイッチとホストをつなげる
+          # connect hosts to a switch
           link "0xabc", "host1"
           link "0xabc", "host2"
 
 
     .slide
-      %h1 写経: パケットを送ってみよう!
-      %p pakcet_in に反応するハンドラを追加
-      %pre{:class => "brush: ruby; highlight: [7]"}
-        :preserve
-          class SimpleController < Controller
-            #
-            # packet_in のハンドラ
-            #   dpid: パケットを受け取ったスイッチの dpid
-            #   message: packet_in メッセージ本体
-            #
-            def packet_in dpid, message
-              puts "New packet_in message!"
-            end
-
-              ...
-          end
-
-
-    .slide
-      %h1 パケットを送ってみよう!
+      %h1 Let's Send Packets!
       %ul
-        %li send_packets でテストパケットを送信
-        %li host1 → host2 にパケットを 10 個送信
+        %li Send test packets with send_packets
+        %li For example the following will send ten packets from host1 to host2
       %pre.brush:.plain
         :preserve
           % ./trema send_packets --source host1 --dest host2 --n_pkts 10 --pps 10
@@ -634,15 +623,7 @@
           New packet_in message!
           New packet_in message!
           New packet_in message!
-      %p → packet_in ハンドラが 10 回呼ばれる
-
-
-    .slide
-      %h1 仮想ネットワーク DSL
-      %ul
-        %li 開発マシン上に好きなトポロジを構築してコントローラを実行できる
-        %li テストパケットを送受信してコントローラをデバッグできる
-        %li 使える部品は仮想スイッチ、仮想ホスト、仮想リンク
+      %p packet_in handler is called ten times
 
 
     .slide
