@@ -181,9 +181,7 @@
             end
           end
       %p
-        Only needs essential methods in this code.
-        %br
-        (flow_mod then FLOOD)
+        Very concise, and there are only a few essential pieces (flow_mod + FLOOD) in this code.
 
 
     .slide
@@ -223,7 +221,7 @@
 
     .slide
       %h1 Beacon (Java)
-      %p We dislike Java (static typing system WITHOUT good type inference mechanism makes your code looong!)
+      %p We don't use Java :-) (static typing system WITHOUT good type inference mechanism makes your code looong!)
       %div{:align => "center"}
         %img{:src => "./static-typing.gif", :height => "60%"}/
 
@@ -238,19 +236,19 @@
 
 
     .slide
-      %h1 Pain of OpenFlow development
-      %p
-        %i "It is complicated to setup OpenFlow development environment (network configurations and VM installations etc.)"
-
-      %br
-
+      %h1 Pains of OpenFlow development
       %p
         %i "I don't have a OpenFlow switch."
 
       %br
 
       %p
-        %i "In the first place, I don't have a network usable for OpenFlow experiments."
+        %i "It is complicated to setup OpenFlow development environment (network configurations and VM installations etc.)"
+
+      %br
+
+      %p
+        %i "There are no network environments here usable for OpenFlow experiments."
 
       .right
         %p Anonymous programmer
@@ -263,7 +261,7 @@
       %ul
         %li Run your controller without modifications
         %li Send and receive test packets between virtual hosts
-        %li Dump switch flow-tables etc.
+        %li Dump packets and flow-tables etc.
 
       %br
 
@@ -272,7 +270,8 @@
 
     .slide
       .vcenter
-        %h1 Common work flow of development with Trema
+        %h1 Hands-on Coding Section
+        %h1 Common Workflow of Development with Trema
 
 
     .slide
