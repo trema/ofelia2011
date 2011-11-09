@@ -271,58 +271,47 @@
     .slide
       .vcenter
         %h1 Hands-on Coding Section
-        %h1 Common Workflow of Development with Trema
+        %h1 Walk-Through of Development with Trema
 
 
     .slide
-      %h1 Let's setup Trema!
+      %h1 Let's Setup Trema!
       %pre.brush:.plain
         :preserve
           $ git clone git://github.com/trema/trema.git
           $ ./trema/build.rb
-      %p And there are no step three!
+      %p
+        %span{:style => "background-color: #ffff00"} And there are no step three!
 
 
     .slide
-      %h1 It's Shakyo Time!
-
-      %span.right
-        %img{:src => "./shakyo.jpg", :height => "20%"}/
-
-      %ul
-        %li
-          Open a file with your favorite editor and let's
-          %b shyakyo
-          the following code.
-        %li Shyakyo = The Japanese form of sutra transcription
-        %li Just type it as is ... don't think at first, the details are described later.
-
-      %span.right
-        %small The image was taken from http://bit.ly/tI6OXP
-
-
-    .slide
-      %h1 Syakyo #1: Your first controller
-      %p Define a controller as a class and make it derived from Controller class
+      %h1 Coding #1: Your first controller
+      %p
+        Define a controller as a class and make it derived from
+        %span{:style => "background-color: #ffff00"} Controller class
       %pre.brush:.ruby
         :preserve
           # simple.rb
-
           class SimpleController < Controller
           end
       %br
 
-      %p Run it with "trema run" command:
+      %p
+        Run it with
+        %span{:style => "background-color: #ffff00"} trema run
+        command:
       %pre.brush:.plain
         :preserve
           % ./trema run ./simple.rb
 
 
     .slide
-      %h1 Syakyo #2: Hello Trema!
-      %ul
-        %li Add start method to the controller class.
-        %li The method is a hook method invoked at startup (initializer).
+      %h1 Coding #2: Hello Trema!
+
+      %p
+        Add a
+        %span{:style => "background-color: #ffff00"} start method
+        to the controller class.
       %pre{:class => "brush: ruby; highlight: [3,4,5]"}
         :preserve
           # hello.rb
@@ -331,8 +320,11 @@
               puts "Hello, Trema!"
             end
           end
+      %p It is a hook method invoked at startup (initializer).
 
-      %p Then you can run it with "trema run"
+      %br
+
+      %p You can run it with trema run
       %pre{:class => "brush: ruby; highlight: [2]"}
         :preserve
           % ./trema run ./hello.rb
@@ -351,16 +343,16 @@
 
 
     .slide
-      %h1 Syakyo #3: Switch Monitor
-      %p Switch monitor controller spec:
+      %h1 Coding #3: Switch Monitor
+      %p Switch monitor tracks all switches in a network
       %ul
-        %li Update the list of switches in real-time
+        %li Updates the list of switches in real-time
         %li Notifies when a new switch is UP
-        %li Notifies when a switch become DOWN
+        %li Notifies when a switch becomes DOWN
 
 
     .slide
-      %h1 Syakyo #3: Switch Monitor
+      %h1 Coding #3: Switch Monitor
       %pre.brush:.ruby
         :preserve
           # src/examples/switch_monitor/switch-monitor.rb
@@ -391,8 +383,9 @@
 
     .slide
       %h1 Event Handlers
-      %pre{:class => "brush: ruby; highlight: [9,14]"}
+      %pre{:class => "brush: ruby; highlight: [9,10,11,12,14,15,16,17]"}
         :preserve
+          # src/examples/switch_monitor/switch-monitor.rb
           class SwitchMonitor < Controller
             periodic_timer_event :show_switches, 10
 
@@ -434,8 +427,8 @@
               info "Switch \#{ datapath_id.to_hex } is UP"
             end
       %ul
-        %li When a switch is connected to the controller, add its dpid to the switch-list instance variable (@switches)
-        %li Output like "Switch 0xabc is UP"
+        %li When a switch is connected to the controller, add (<<) its dpid to the switch-list instance variable (@switches)
+        %li Then output like "Switch 0xabc is UP"
 
 
     .slide
@@ -464,23 +457,11 @@
 
 
     .slide
-      %h1 Variable and String in Ruby
-      %pre.brush:.ruby
-        :preserve
-          % irb
-          > name = "Spider-Man"
-          => "Spider-Man"
-
-          > puts "My name is \#{ name }"
-          My name is Spider-Man
-          => nil
-
-
-    .slide
       %h1 switch_disconnected handler
       %ul
-        %li When a switch become DOWN, remove its dpid from @switches list
-        %li Output like "Switch 0xabc is DOWN"
+        %li
+          When a switch becomes DOWN, remove (-=) its dpid from @switches list
+        %li Then output like "Switch 0xabc is DOWN"
       %pre{:class => "brush: ruby; highlight: [6,7,8,9]"}
         :preserve
           # src/examples/switch_monitor/switch-monitor.rb
@@ -521,15 +502,18 @@
       %p Write a virtual network configuration (DSL) that adds three switches to the network.
       %pre.brush:.ruby
         :preserve
-          # switch-monitor.conf
+          # src/examples/switch_monitor/switch-monitor.conf
           vswitch { datapath_id 0x1 }
           vswitch { datapath_id 0x2 }
           vswitch { datapath_id 0x3 }
 
-      %p Then pass it to trema run with -c option
+      %p
+        Then pass it to trema run with
+        %span{:style => "background-color: #ffff00"} -c
+        option
       %pre.brush:.plain
         :preserve
-          % ./trema run ./switch-monitor.rb -c ./switch-monitor.conf
+          % ./trema run ./src/examples/switch_monitor/switch-monitor.rb -c ./src/examples/switch_monitor/switch-monitor.conf
           Switch 0x3 is UP
           Switch 0x2 is UP
           Switch 0x1 is UP
@@ -548,14 +532,21 @@
 
 
     .slide
-      %h1 Kill a Switch Intentionally
+      %h1 Shutdown a Switch
+      %p Let's test switch_disconnected handler by causing a fault in the virtual network
 
-      %p Open another terminal and run "trema kill"
+      %br
+
+      %p
+        Open another terminal and run
+        %span{:style => "background-color: #ffff00"} trema kill
       %pre.brush:.bash
         :preserve
           % ./trema kill 0x3
 
-      %p Then you can see "Switch 0x??? is DOWN" on the "trema run" terminal
+      %br
+
+      %p Then you can see "Switch 0x??? is DOWN"
       %pre{:class => "brush: ruby; highlight: [9]"} 
         :preserve
           % ./trema run ./switch-monitor.rb -c ./switch-monitor.conf
@@ -572,12 +563,12 @@
     .slide
       %h1 Summary: Switch Monitor
       %ul
-        %li Implement the logic of a controller by defining event handler methods (e.g., switch_ready, switch_disconnected etc.)
-        %li Network DSL makes it possible to test your own controller even if you don't have an OpenFlow switch.
+        %li Implement the logic of a controller by adding event handlers (e.g., switch_ready and switch_disconnected)
+        %li Network DSL makes it possible to test your own controller even if you don't have OpenFlow switches.
 
 
     .slide
-      %h1 Syakyo #4: packet-in handling
+      %h1 Coding #4: packet-in handling
       %p Add the following method to handle packet-in
       %pre{:class => "brush: ruby; highlight: [2,3,4]"}
         :preserve
@@ -615,7 +606,7 @@
       %h1 Let's Send Packets!
       %ul
         %li Send test packets with send_packets
-        %li For example the following will send ten packets from host1 to host2
+        %li The following will send ten packets from host1 to host2 in a second
       %pre.brush:.plain
         :preserve
           % ./trema send_packets --source host1 --dest host2 --n_pkts 10 --pps 10
@@ -624,16 +615,11 @@
           New packet_in message!
           New packet_in message!
           New packet_in message!
-          New packet_in message!
-          New packet_in message!
-          New packet_in message!
-          New packet_in message!
-          New packet_in message!
-      %p packet_in handler is called ten times
+            ...
 
 
     .slide
-      %h1 Large-scale and complex topology
+      %h1 Large and complex topology?
       %p Ten switches full-mesh topology configurations in flat (about 80 LOC)
       %pre.brush:.ruby
         :preserve
@@ -677,11 +663,11 @@
 
 
     .slide
-      %h1 Syakyo #5: Modifying flow-table
+      %h1 Coding #5: Modifying flow-table
       %p Write a flow-entry that forwards incoming packets to the next switch port
       %pre{:class => "brush: ruby; highlight: [3,4,5,6,7,8]"}
         :preserve
-          class CbenchSwitch < Controller
+          class SimpleController < Controller
             def packet_in dpid, message
               send_flow_mod_add(
                 dpid,
@@ -695,7 +681,7 @@
 
 
     .slide
-      %h1 Comparison of flow_mod APIs
+      %h1 Comparison of flow_mod API
 
       %p Trema
       %pre.brush:.ruby
@@ -724,7 +710,7 @@
 
 
     .slide
-      %h1 Nifty API for Match Structure
+      %h1 Creating a Match Structure
 
       %p You can easily create an exact match from incoming packet_in message:
 
@@ -753,47 +739,23 @@
 
 
     .slide
-      %h1 Run cbench benchmarks
-      %p cbench = A controller benchmark that measures flow-setup/sec
-      %pre.brush:.plain
-        :preserve
-          1   switches: fmods/sec:  10627   total = 10.626989 per ms 
-          1   switches: fmods/sec:  8184   total = 8.183992 per ms 
-          1   switches: fmods/sec:  7542   total = 7.541992 per ms 
-          1   switches: fmods/sec:  7852   total = 7.851992 per ms 
-          1   switches: fmods/sec:  8243   total = 8.242992 per ms 
-          1   switches: fmods/sec:  7807   total = 7.806977 per ms 
-          1   switches: fmods/sec:  8484   total = 8.483992 per ms 
-          1   switches: fmods/sec:  8401   total = 8.400992 per ms 
-          1   switches: fmods/sec:  8129   total = 8.128992 per ms 
-          1   switches: fmods/sec:  7853   total = 7.852788 per ms 
-          RESULT: 1 switches 9 tests min/max/avg/stdev = 7541.99/8483.99/8054.97/292.12 responses/s
-      %p About 8,000 flow-setup/sec
+      %h1 Summary: Trema API
+      %ul
+        %li There are many shortcuts and syntactic sugars in Trema API that can simplify and shorten your code
+        %li
+          More details can be found in Ruby API Document 
+          %a{:href => "http://rubydoc.info/github/trema/trema/"} http://rubydoc.info/github/trema/trema/
 
 
     .slide
-      %h1 cbench with C version controller
-      %p About 14,000 flow-setup/sec
-      %pre.brush:.plain
-        :preserve
-          1   switches: fmods/sec:  8891   total = 8.890991 per ms 
-          1   switches: fmods/sec:  14864   total = 14.863985 per ms 
-          1   switches: fmods/sec:  14316   total = 14.315986 per ms 
-          1   switches: fmods/sec:  14548   total = 14.547985 per ms 
-          1   switches: fmods/sec:  14648   total = 14.647956 per ms 
-          1   switches: fmods/sec:  13318   total = 13.317987 per ms 
-          1   switches: fmods/sec:  14376   total = 14.375986 per ms 
-          1   switches: fmods/sec:  13143   total = 13.142987 per ms 
-          1   switches: fmods/sec:  14275   total = 14.274986 per ms 
-          1   switches: fmods/sec:  14280   total = 14.279986 per ms 
-          RESULT: 1 switches 9 tests min/max/avg/stdev = 13142.99/14863.99/14196.43/549.16 responses/s
-      %p We recommend to write a controller in Ruby at first, then rewrite them with C if need be
+      .vcenter
+        %h2 Short Break (15min)
 
 
     .slide
       %h1 Traffic Monitor
       %ul
-        %li A L2 switch
+        %li L2 switch
         %li Counts the number of packets sent by each user
         %li Each user is identified by its MAC address
 
@@ -801,34 +763,35 @@
     .slide
       %h1 Traffic Monitor classes
       %ul
-        %li FDB class for learning MAC <=> switch-port pair
-        %li Counter class that keeps number of packets sent by each user
-        %li TrafficMonitor class that acts as a Controller
+        %li
+          %span{:style => "background-color: #ffff00"} FDB class
+          learns {MAC, switch-port} pair
+        %li
+          %span{:style => "background-color: #ffff00"} Counter class
+          keeps number of packets sent by each user
+        %li
+          %span{:style => "background-color: #ffff00"} TrafficMonitor class
+          acts as a Controller
+      %br
+      %p Let's implement them one by one
 
 
     .slide
-      %h1 Syakyo #6: FDB Class
+      %h1 Coding #6: FDB Class
       %pre.brush:.ruby
         :preserve
+          # src/examples/traffic_monitor/fdb.rb
           class FDB
             def initialize
               @db = {}
             end
 
             def lookup mac
-              if @db[ mac ]
-                @db[ mac ][ :port_number ]
-              else
-                nil
-              end
+              @db[ mac ]
             end
 
             def learn mac, port_number
-              if @db[ mac ]
-                @db[ mac ][ :port_number ] = port_number
-              else
-                @db[ mac ] = { :mac => mac, :port_number => port_number }
-              end
+              @db[ mac ] = port_number
             end
           end
 
@@ -839,23 +802,16 @@
         :preserve
           % irb
           > require "fdb"
-          => true
-
           > fdb = FDB.new
-          => #&lt;FDB:0xb73591e0 @db={}>
 
           > fdb.lookup "00:00:00:00:00:01"
           => nil
 
           > fdb.learn "00:00:00:00:00:01", 1
-          => {:mac=>"00:00:00:00:00:01", :port_number=>1}
-
           > fdb.lookup "00:00:00:00:00:01"
           => 1
 
           > fdb.learn "00:00:00:00:00:02", 2
-          => {:mac=>"00:00:00:00:00:02", :port_number=>2}
-
           > fdb.lookup "00:00:00:00:00:02"
           => 2
 
@@ -885,9 +841,10 @@
 
 
     .slide
-      %h1 Syakyo #7: Counter Class
+      %h1 Coding #7: Counter Class
       %pre.brush:.ruby
         :preserve
+          # src/examples/traffic_monitor/counter.rb
           class Counter
             def initialize
               @db = {}
@@ -911,38 +868,31 @@
         :preserve
           % irb
           > require "counter"
-          => true
-
           > counter = Counter.new
-          => #<Counter:0xb7366d2c @db={}>
 
           > counter.add "00:00:00:00:00:01", 1, 100
-          => 100
-
           > counter.add "00:00:00:00:00:02", 1, 100
-          => 100
-
           > counter.add "00:00:00:00:00:02", 1, 100
-          => 200
 
           > counter.each_pair do | mac, counter |
-          *   p counter
+          >   p mac, counter
           > end
+          "00:00:00:00:00:01"
           {:packet_count=>1, :byte_count=>100}
+          "00:00:00:00:00:02"
           {:packet_count=>2, :byte_count=>200}
-          => {"00:00:00:00:00:01"=>{:packet_count=>1, :byte_count=>100}, "00:00:00:00:00:02"=>{:packet_count=>2, :byte_count=>200}}
 
 
     .slide
       %h1 TrafficMonitor Class Overview
       %p TrafficMonitor has the following two handlers
       %ul
-        %li packet_in: L2 switching. When a packet_in comes, learn MAC <=> switch-port pair and send flow_mod to a switch
-        %li flow_removed: counts the number of packets and bytes from a user. This information is piggy-backed with flow_removed messages
+        %li packet_in: L2 switching. When a packet_in comes, learns its {MAC, switch-port} pair and sends flow_mod
+        %li flow_removed: Counts the packets from each user. This traffic information is piggy-backed with flow_removed messages
 
 
     .slide
-      %h1 Syakyo #8: TrafficMonitor#packet_in
+      %h1 Coding #8: TrafficMonitor#packet_in
       %pre{:class => "brush: ruby; highlight: [16,17,19]"}
         :preserve
           class TrafficMonitor < Controller
@@ -958,6 +908,7 @@
               macda = message.macda
 
               @fdb.learn macsa, message.in_port
+              @counter.add macsa, 1, message.total_len
               out_port = @fdb.lookup( macda )
               if out_port
                 flow_mod datapath_id, macsa, macda, out_port
@@ -966,19 +917,17 @@
                 flood datapath_id, message
               end
             end
-              ...
 
 
     .slide
-      %h1 Syakyo #9: TrafficMonitor#flow_mod
-      %pre{:class => "brush: ruby; highlight: [7]"}
+      %h1 Coding #9: TrafficMonitor#flow_mod
+      %pre{:class => "brush: ruby; highlight: [6]"}
         :preserve
             private
               ...
             def flow_mod datapath_id, macsa, macda, out_port
               send_flow_mod_add(
                 datapath_id,
-                :send_flow_rem => true,
                 :hard_timeout => 10,
                 :match => Match.new(
                   :dl_src => macsa.to_s,
@@ -987,11 +936,11 @@
                 :actions => Trema::ActionOutput.new( out_port )
               )
             end
-      %p :hard_timeout forces flow-entries to be removed in ten seconds and therefore causes flow_removed
+      %p hard_timeout forces flow-entries to be removed in ten seconds and therefore causes flow_removed
 
 
     .slide
-      %h1 Syakyo #10: TrafficMonitor#packet_out and flood
+      %h1 Coding #10: TrafficMonitor#packet_out and flood
       %pre{:class => "brush: ruby; highlight: [9]"}
         :preserve
 
@@ -1014,7 +963,7 @@
 
 
     .slide
-      %h1 Syakyo #11: TrafficMonitor#flow_removed
+      %h1 Coding #11: TrafficMonitor#flow_removed
       %pre.brush:.ruby
         :preserve
           class TrafficMonitor < Controller
@@ -1061,13 +1010,18 @@
         :preserve
           % ./trema send_packets --source host1 --dest host2 --n_pkts 10 --pps 10
           % ./trema send_packets --source host2 --dest host1 --n_pkts 10 --pps 10
-      %p Then the trema run terminal will look like:
+      %p Then the output will look like:
       %pre.brush:.bash
         :preserve
             ...
           00:00:00:00:00:01 10 packets (640 bytes)
           00:00:00:00:00:02 10 packets (640 bytes)
             ...
+
+
+    .slide
+      .vcenter
+        %h1 Wrap-up
 
 
     .slide
@@ -1097,10 +1051,56 @@
 
 
     .slide
+      %div{:align => "center"}
+        %img{:src => "./TremaApps.gif", :height => "90%"}/
+
+
+    .slide
+      %h1 Performance: cbench benchmarks
+      %p cbench = A controller benchmark that measures flow-setup/sec
+      %pre.brush:.plain
+        :preserve
+          1   switches: fmods/sec:  10627   total = 10.626989 per ms 
+          1   switches: fmods/sec:  8184   total = 8.183992 per ms 
+          1   switches: fmods/sec:  7542   total = 7.541992 per ms 
+          1   switches: fmods/sec:  7852   total = 7.851992 per ms 
+          1   switches: fmods/sec:  8243   total = 8.242992 per ms 
+          1   switches: fmods/sec:  7807   total = 7.806977 per ms 
+          1   switches: fmods/sec:  8484   total = 8.483992 per ms 
+          1   switches: fmods/sec:  8401   total = 8.400992 per ms 
+          1   switches: fmods/sec:  8129   total = 8.128992 per ms 
+          1   switches: fmods/sec:  7853   total = 7.852788 per ms 
+          RESULT: 1 switches 9 tests min/max/avg/stdev = 7541.99/8483.99/8054.97/292.12 responses/s
+      %p About 8,000 flow-setup/sec
+
+
+    .slide
+      %h1 cbench with C version controller
+      %p About 14,000 flow-setup/sec
+      %pre.brush:.plain
+        :preserve
+          1   switches: fmods/sec:  8891   total = 8.890991 per ms 
+          1   switches: fmods/sec:  14864   total = 14.863985 per ms 
+          1   switches: fmods/sec:  14316   total = 14.315986 per ms 
+          1   switches: fmods/sec:  14548   total = 14.547985 per ms 
+          1   switches: fmods/sec:  14648   total = 14.647956 per ms 
+          1   switches: fmods/sec:  13318   total = 13.317987 per ms 
+          1   switches: fmods/sec:  14376   total = 14.375986 per ms 
+          1   switches: fmods/sec:  13143   total = 13.142987 per ms 
+          1   switches: fmods/sec:  14275   total = 14.274986 per ms 
+          1   switches: fmods/sec:  14280   total = 14.279986 per ms 
+          RESULT: 1 switches 9 tests min/max/avg/stdev = 13142.99/14863.99/14196.43/549.16 responses/s
+      %p We recommend to write a controller in Ruby at first, then rewrite them with C if need be
+
+
+    .slide
       %h1 Unit-Test
       %ul
-        %li You can write unit-tests of send/receive packets between hosts and flow-table entries of switches etc. with RSpec
-        %li The details can be found in spec/ directory
+        %li You can write unit-tests of sending/receiving packets between hosts and flow-table entries of switches etc. with RSpec
+        %li
+          The details can be found in 
+          %span{:style => "background-color: #ffff00"} spec/
+          directory
 
 
     .slide
@@ -1134,7 +1134,7 @@
     .slide
       %h1 Summary
       %p
-        %span{:style => "background-color: #ffff00"} OpenFlow frmework Trema
+        %span{:style => "background-color: #ffff00"} OpenFlow framework Trema
       %ul
         %li You can write controllers short and run it quickly
         %li Many examples in src/examples and trema/apps repository
